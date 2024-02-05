@@ -28,30 +28,25 @@ public class TaskManager {
 
     public Epic createNewEpic(String title, String description) {
         // ТЗ пункт 2. D Создание Эпика
-        Epic epic = new Epic(new Task(title, description, TaskStatus.NEW));
+        Epic epic = new Epic(title, description, TaskStatus.NEW);
         addToTasksList(epic);
+
         return epic;
     }
     public boolean checkIsEpic(long epicId){
         Object currentEpic = getEntityById(epicId);
-
         return currentEpic != null && currentEpic.getClass().equals(Epic.class);
-
     }
     public Subtask createNewSubtask(String title, String description, String status, long epicId) {
         // ТЗ пункт 2. D Создание Подзадачи
-        System.out.println("title " + title);
         if (checkIsEpic(epicId)) {
-            Subtask subtask = new Subtask(new Task(title, description, TaskStatus.valueOf(status)), epicId);
+            Subtask subtask = new Subtask(title, description, TaskStatus.valueOf(status), epicId);
             addToTasksList(subtask);
-
             actualizationEpicStatus(subtask);
-
             return subtask;
         } else {
-            System.out.printf("Нельзя создать подзадачу к несуществующему эпику. " +
-                    "Проверьте Id %d переданного epic\n", epicId);
-
+            System.out.printf("Нельзя создать подзадачу с несуществующим Id = %d эпика. " +
+                    "Проверьте Id %d переданного epic\n", epicId, epicId);
         }
         return null;
     }
@@ -61,20 +56,20 @@ public class TaskManager {
 
         if (isAllSubtasksInRequiredStatus(currentEpic.getId(), TaskStatus.DONE)) {
             // эпик получает статус DONE
-            System.out.println("Обновляем эпик на статус DONE, id = " + currentEpic.getId());
+            System.out.printf("Обновляем эпик с id = %d на статус DONE\n", currentEpic.getId());
             updateTask(new Epic(currentEpic.getTitle(),
                     currentEpic.getDescription(),
                     TaskStatus.DONE, currentEpic.getId()), currentEpic.getId());
 
         } else if (isAllSubtasksInRequiredStatus(currentEpic.getId(), TaskStatus.NEW)) {
             // эпик получает статус NEW
-            System.out.println("Обновляем эпик на статус NEW, id = " + currentEpic.getId());
+            System.out.printf("Обновляем эпик с id = %d на статус NEW\n", currentEpic.getId());
             updateTask(new Epic(currentEpic.getTitle(),
                     currentEpic.getDescription(),
                     TaskStatus.NEW, currentEpic.getId()), currentEpic.getId());
         } else {
             // эпик получает статус IN_PROGRESS
-            System.out.println("Обновляем эпик на статус IN_PROGRESS, id = " + currentEpic.getId());
+            System.out.printf("Обновляем эпик c id = %d на статус IN_PROGRESS\n", currentEpic.getId());
             updateTask(new Epic(currentEpic.getTitle(),
                     currentEpic.getDescription(),
                     TaskStatus.IN_PROGRESS, currentEpic.getId()), currentEpic.getId());
@@ -89,7 +84,6 @@ public class TaskManager {
         }
         return true;
     }
-
 
     private void addToTasksList(Object obj) {
         listOfAllTasks.add(obj);
@@ -124,7 +118,6 @@ public class TaskManager {
             }
         }
 
-
         return countDeletedItems;
     }
 
@@ -150,7 +143,7 @@ public class TaskManager {
             if (obj.getClass().equals(Epic.class)) {
                 tasksToRemove.addAll(getListOfSubtaskByEpicId(taskId));
             }
-            changeEpicStatus(obj);
+            changeEpicStatusAfterChangeSubtask(obj);
         }
 
         int countDeletedItems = tasksToRemove.size();
@@ -200,7 +193,7 @@ public class TaskManager {
         if (index != -1) {
             listOfAllTasks.remove(index);
             listOfAllTasks.add(index, newTask);
-            changeEpicStatus(newTask);
+            changeEpicStatusAfterChangeSubtask(newTask);
 
             return listOfAllTasks.get(index);
         }
@@ -208,7 +201,7 @@ public class TaskManager {
         return null;
     }
 
-    private void changeEpicStatus(Object newTask) {
+    private void changeEpicStatusAfterChangeSubtask(Object newTask) {
         if (newTask.getClass().equals(Subtask.class) && checkIsEpic(((Subtask) newTask).getEpicId())) {
             actualizationEpicStatus((Subtask) newTask);
         }

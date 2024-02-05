@@ -25,15 +25,12 @@ public class Main {
         Epic epic3 = taskManager.createNewEpic("Важный эпик 3",
                 "Описание эпика 3"
         );
-        printAllList(taskManager);
-        System.out.println("isEpic " + taskManager.checkIsEpic(epic1.getId()));
 
         Subtask subtask1 = taskManager.createNewSubtask(
                 "Собрать коробки",
                 "Вещи + одежду",
                 "NEW",
                 epic1.getId());
-        printAllList(taskManager);
 
         Subtask subtask2 = taskManager.createNewSubtask(
                 "Упаковать кошку",
@@ -54,18 +51,17 @@ public class Main {
                 epic2.getId());
 
         printAllList(taskManager);
-        System.out.println("subtask4 до обновления " + subtask4 + " по ИД " + subtask4.getId());
+        System.out.printf("Подзадача до обновления %s\n", subtask4);
         subtask4 = (Subtask) taskManager.updateTask(new Subtask("newSubtask",
                 "newDescription",
-                TaskStatus.valueOf("NEW"), epic2.getId()), subtask4.getId());
-        System.out.println("subtask4 после обновления " + subtask4);
+                TaskStatus.valueOf("DONE"), epic2.getId()), subtask4.getId());
+        System.out.printf("Подзадача после обновления %s\n", subtask4);
 
         printAllList(taskManager);
 
         System.out.println("Удаляю все подзадачи");
         taskManager.removeEntityFromKanban(Subtask.class);
         printAllList(taskManager);
-
 
 
         ArrayList<Object> epics = taskManager.getAllEntitiesByClass(Epic.class);
@@ -77,16 +73,19 @@ public class Main {
         printAllList(taskManager);
 
 
-        System.out.println("Удаляю эпик" + epic1.getId());
-        taskManager.removeTaskById(epic1.getId());
+        System.out.printf("Удаляю эпик id = %d\n", epic1.getId());
+        int result = taskManager.removeTaskById(epic1.getId());
+        if (result > 0) {
+            System.out.printf("Эпик id = %d удален с канбан доски\n", epic1.getId());
+        }
         printAllList(taskManager);
-        System.out.println();
 
-        System.out.println("task2 до обновления " + task2 + " по ИД " + task2.getId());
-        task2 = (Task) taskManager.updateTask(new Task("newTitle",
+
+        System.out.printf("Задача %s до обновления\n", task2);
+        task2 = (Task) taskManager.updateTask(new Task("newTitle after updating",
                 "newDescription",
-                TaskStatus.valueOf("NEW")), task2.getId());
-        System.out.println("task2 после обновления " + task2);
+                TaskStatus.valueOf("DONE")), task2.getId());
+        System.out.printf("Задача %s после обновления\n", task2);
         printAllList(taskManager);
 
         ArrayList<Object> tasks = taskManager.getAllEntitiesByClass(Task.class);
