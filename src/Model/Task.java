@@ -6,16 +6,20 @@ public class Task {
     String title;
     String description;
     long id;
+    TaskStatus status;
 
-    public void setId(long id) {
+    public Task(String title, String description, TaskStatus taskStatus, long id) {
+        this.title = title;
+        this.description = description;
         this.id = id;
+        this.status = taskStatus;
     }
 
     public long getId() {
         return id;
     }
 
-    TaskStatus status;
+
 
     @Override
     public String toString() {

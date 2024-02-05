@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Epic extends Task {
-    ArrayList<Subtask> subtasks = new ArrayList<>();
 
-    public Epic(String title, String description, TaskStatus status, ArrayList<Subtask> subtasks) {
-        super(title, description, status);
-        this.subtasks = subtasks;
+    public Epic(String title, String description, TaskStatus taskStatus) {
+        super(title, description, taskStatus);
+    }
+
+    public Epic(String title, String description, TaskStatus taskStatus, long id) {
+        super(title, description, taskStatus, id);
     }
 
 
@@ -17,7 +19,6 @@ public class Epic extends Task {
         return "Epic{" +
                 "id=" + id +
                 ", title='" + title + '\'' +
-                ", subtasks=" + subtasks +
                 ", description='" + description + '\'' +
                 ", status=" + status +
                 '}';
