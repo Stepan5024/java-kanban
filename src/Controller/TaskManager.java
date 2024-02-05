@@ -15,13 +15,10 @@ public class TaskManager {
     public static long generateId() {
         return taskId++;
     }
-    public static long getId() {
-        return taskId;
-    }
 
 
     public Task createNewTask(String title, String description, String status) {
-
+        // ТЗ пункт 2. D Создание Задачи
         Task task = new Task(title,
                 description,
                 TaskStatus.valueOf(status));
@@ -29,21 +26,15 @@ public class TaskManager {
         return task;
     }
 
-    public Object getClass(Object obj) {
-        if (obj.getClass().equals(Task.class)) return Task.class;
-        else if (obj.getClass().equals(Epic.class)) return Epic.class;
-        else if (obj.getClass().equals(Subtask.class)) return Subtask.class;
-        return obj;
-    }
-
-
     public Epic createNewEpic(String title, String description, String status) {
+        // ТЗ пункт 2. D Создание Эпика
         Epic epic = new Epic(new Task(title, description, TaskStatus.valueOf(status)));
         addToTasksList(epic);
         return epic;
     }
 
     public Subtask createNewSubtask(String title, String description, String status, long epicId) {
+        // ТЗ пункт 2. D Создание Подзадачи
         Subtask subtask = new Subtask(new Task(title, description, TaskStatus.valueOf(status)), epicId);
         addToTasksList(subtask);
         return subtask;
@@ -53,57 +44,25 @@ public class TaskManager {
         listOfAllTasks.add(obj);
     }
 
-    public ArrayList<Object> getListOfAllTasks() {
+    public ArrayList<Object> getListOfAllEntities() {
         return listOfAllTasks;
     }
 
-    public ArrayList<Task> getAllTasks() {
-        ArrayList<Task> tasks = new ArrayList<>();
-        for (Object obj : getListOfAllTasks()) {
-            if (obj.getClass().equals(Task.class)) {
-                tasks.add((Task) obj);
+    public Object getEntityById(long id) {
+        // ТЗ 2.C Получение по идентификатору задачи, эписка, подзадачи
+        Object target = null;
+        for (Object obj : getListOfAllEntities()) {
+            if (obj.getClass().equals(Subtask.class) && ((Subtask) obj).getId() == id) {
+                target = obj;
+            } else if (obj.getClass().equals(Task.class) && ((Task) obj).getId() == id) {
+                target = obj;
+            } else if (obj.getClass().equals(Epic.class) && ((Epic) obj).getId() == id) {
+                target = obj;
             }
         }
-        return tasks;
+        return target;
     }
 
-    public ArrayList<Epic> getAllEpics() {
-        ArrayList<Epic> epics = new ArrayList<>();
-        for (Object obj : getListOfAllTasks()) {
-            if (obj.getClass().equals(Epic.class)) {
-                epics.add((Epic) obj);
-            }
-        }
-        return epics;
-    }
-
-    public ArrayList<Subtask> getAllSubtask() {
-        ArrayList<Subtask> subtasks = new ArrayList<>();
-        for (Object obj : getListOfAllTasks()) {
-            if (obj.getClass().equals(Subtask.class)) {
-                subtasks.add((Subtask) obj);
-            }
-        }
-        return subtasks;
-    }
-
-    public int removeAllTasks() {
-        int countDeletedItems = 0;
-
-        for (Task task : getAllTasks()) {
-            countDeletedItems += removeTaskById(task.getId());
-        }
-        return countDeletedItems;
-    }
-
-    public int removeAllSubtasks() {
-        // ТЗ пункт 2.B Удаление всех эпиков
-        int countDeletedItems = 0;
-        for (Subtask task : getAllSubtask()) {
-            countDeletedItems += removeTaskById(task.getId());
-        }
-        return countDeletedItems;
-    }
     public int removeEntityFromKanban(Class<?> aClass) {
         // ТЗ пункт 2.B Удаление всех эпиков, подзадач, тасков
         int countDeletedItems = 0;
@@ -117,45 +76,35 @@ public class TaskManager {
         return countDeletedItems;
     }
 
-    private ArrayList<Object> getAllEntitiesByClass(Class<?> aClass) {
+    public ArrayList<Object> getAllEntitiesByClass(Class<?> aClass) {
+        // ТЗ 2.A Получение списка всех задач, подзадач, эпиков
         ArrayList<Object> entities = new ArrayList<>();
-        for(Object obj : getListOfAllTasks()) {
-            if(obj.getClass().equals(aClass)) {
+        for (Object obj : getListOfAllEntities()) {
+            if (obj.getClass().equals(aClass)) {
                 entities.add(obj);
             }
         }
         return entities;
     }
 
-    public int removeAllEpics() {
-        // ТЗ пункт 2.B Удаление всех эпиков
-        int countDeletedItems = 0;
-        for (Epic task : getAllEpics()) {
-            countDeletedItems += removeTaskById(task.getId());
-        }
-        return countDeletedItems;
-    }
-
 
     public int removeTaskById(long taskId) {
-    // ТЗ пункт 2.F Удаление по идентификатору
+        // ТЗ пункт 2.F Удаление по идентификатору
         List<Object> tasksToRemove = new ArrayList<>();
-        for (Object obj : getListOfAllTasks()) {
-            if (getClass(obj).equals(Subtask.class) && ((Subtask) obj).getId() == taskId) {
-                tasksToRemove.add(obj);
-            } else if (getClass(obj).equals(Task.class) && ((Task) obj).getId() == taskId) {
-                tasksToRemove.add(obj);
-            } else if (getClass(obj).equals(Epic.class) && ((Epic) obj).getId() == taskId) {
+        Object obj = getEntityById(taskId);
+
+        if(obj != null) {
+            tasksToRemove.add(obj);
+            if(obj.getClass().equals(Epic.class)) {
                 tasksToRemove.addAll(getListOfSubtaskByEpicId(taskId));
-                tasksToRemove.add(obj);
             }
         }
+
         int countDeletedItems = tasksToRemove.size();
 
         for (Object task : tasksToRemove) {
             listOfAllTasks.remove(task);
         }
-
         return countDeletedItems;
     }
 
@@ -164,32 +113,35 @@ public class TaskManager {
         // ТЗ пункт 3.А Получение списка всех подзадач определённого эпика.
         ArrayList<Subtask> listOfSubtasks = new ArrayList<>();
 
-        for (Subtask subtask : getAllSubtask()) {
-            if (subtask.getEpicId() == epicId) {
-                listOfSubtasks.add(subtask);
+        for (Object subtask : getAllEntitiesByClass(Subtask.class)) {
+
+            if (((Subtask) subtask).getEpicId() == epicId) {
+                listOfSubtasks.add((Subtask) subtask);
             }
         }
         return listOfSubtasks;
     }
 
     public Object updateTask(Object newTask, long taskId) {
+        // ТЗ 2. E Обновление объекта новой версией.
         // логика работы
         // 1. Находим индекс таски в списке
         // 2. Удаляем элемент по индексу
         // 3. Вставляем новый объект по индексу
 
         int index = -1;
-        for (int i = 0; i < getListOfAllTasks().size(); i++) {
-            Object obj = getListOfAllTasks().get(i);
-            if (getClass(obj).equals(Subtask.class) && ((Subtask) obj).getId() == taskId) {
+
+        for (int i = 0; i < getListOfAllEntities().size(); i++) {
+            Object obj = getListOfAllEntities().get(i);
+            if (obj.getClass().equals(Subtask.class) && ((Subtask) obj).getId() == taskId) {
                 index = i;
-            } else if (getClass(obj).equals(Task.class) && ((Task) obj).getId() == taskId) {
+            } else if (obj.getClass().equals(Task.class) && ((Task) obj).getId() == taskId) {
                 index = i;
-            } else if (getClass(obj).equals(Epic.class) && ((Epic) obj).getId() == taskId) {
+            } else if (obj.getClass().equals(Epic.class) && ((Epic) obj).getId() == taskId) {
                 index = i;
             }
         }
-        if(index != -1) {
+        if (index != -1) {
             listOfAllTasks.remove(index);
             listOfAllTasks.add(index, newTask);
             ((Task) newTask).setId(taskId);

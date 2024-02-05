@@ -57,26 +57,24 @@ public class Main {
                 "newDescription",
                 TaskStatus.valueOf("NEW"), epic2.getId()), subtask4.getId());
         System.out.println("subtask4 после обновления " + subtask4);
+
         printAllList(taskManager);
 
 
-        //printAllList(taskManager);
-      /*  System.out.println("Список всех задач");
-        ArrayList<Task> tasks = taskManager.getAllTasks();
-        for (Task task : tasks) {
-            System.out.println(task);
-        }
-        System.out.println("Список всех эпиков");
-        ArrayList<Epic> epics = taskManager.getAllEpics();
-        for (Epic epic : epics) {
+
+        ArrayList<Object> epics = taskManager.getAllEntitiesByClass(Epic.class);
+        System.out.println("Всего эпиков " + epics.size());
+        System.out.println("Список всех эпиков:");
+        for (Object epic : epics) {
             System.out.println(epic);
-        }*/
+        }
         printAllList(taskManager);
 
 
         System.out.println("Удаляю эпик" + epic1.getId());
         taskManager.removeTaskById(epic1.getId());
         printAllList(taskManager);
+        System.out.println();
 
         System.out.println("task2 до обновления " + task2 + " по ИД " + task2.getId());
         task2 = (Task) taskManager.updateTask(new Task("newTitle",
@@ -85,19 +83,28 @@ public class Main {
         System.out.println("task2 после обновления " + task2);
         printAllList(taskManager);
 
+        ArrayList<Object> tasks = taskManager.getAllEntitiesByClass(Task.class);
+        System.out.println("Всего задач " + tasks.size());
+        System.out.println("Список всех задач:");
+        for (Object task : tasks) {
+            System.out.println(task);
+        }
+        System.out.println();
 
-        /*System.out.println("Удаляю все задачи");
-        taskManager.removeAllTasks();
-        printAllList(taskManager);*/
+        System.out.println("Удаляю все задачи");
+        System.out.println("Удалено " + taskManager.removeEntityFromKanban(Task.class));
+        printAllList(taskManager);
 
     }
 
     public static void printAllList(TaskManager taskManager) {
+        System.out.println();
         System.out.println("Весь список канбан доски");
-        ArrayList<Object> allTasks = taskManager.getListOfAllTasks();
+        ArrayList<Object> allTasks = taskManager.getListOfAllEntities();
 
         for (Object obj : allTasks) {
             System.out.println(obj);
         }
+        System.out.println();
     }
 }
