@@ -7,6 +7,10 @@ public class Task {
     String description;
     long id;
 
+    public void setId(long id) {
+        this.id = id;
+    }
+
     public long getId() {
         return id;
     }

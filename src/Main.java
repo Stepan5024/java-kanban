@@ -45,8 +45,22 @@ public class Main {
                 "NEW",
                 epic1.getId());
 
+        Subtask subtask4 = taskManager.createNewSubtask(
+                "mysubtask4",
+                "subtask4!",
+                "NEW",
+                epic2.getId());
 
-       //printAllList(taskManager);
+        printAllList(taskManager);
+        System.out.println("subtask4 до обновления " + subtask4 + " по ИД " + subtask4.getId());
+        subtask4 = (Subtask) taskManager.updateTask(new Subtask("newSubtask",
+                "newDescription",
+                TaskStatus.valueOf("NEW"), epic2.getId()), subtask4.getId());
+        System.out.println("subtask4 после обновления " + subtask4);
+        printAllList(taskManager);
+
+
+        //printAllList(taskManager);
       /*  System.out.println("Список всех задач");
         ArrayList<Task> tasks = taskManager.getAllTasks();
         for (Task task : tasks) {
@@ -57,22 +71,28 @@ public class Main {
         for (Epic epic : epics) {
             System.out.println(epic);
         }*/
-       printAllList(taskManager);
+        printAllList(taskManager);
 
-        System.out.println("подзадачи по эпику 1 = " + taskManager.getListOfSubtaskByEpicId(epic1.getId()));
-        System.out.println("Удаляю эпик");
-        System.out.println("epicId main = " + epic1.getId());
+
+        System.out.println("Удаляю эпик" + epic1.getId());
         taskManager.removeTaskById(epic1.getId());
-
         printAllList(taskManager);
-        System.out.println("Удаляю все задачи");
-        taskManager.removeTasks();
 
+        System.out.println("task2 до обновления " + task2 + " по ИД " + task2.getId());
+        task2 = (Task) taskManager.updateTask(new Task("newTitle",
+                "newDescription",
+                TaskStatus.valueOf("NEW")), task2.getId());
+        System.out.println("task2 после обновления " + task2);
         printAllList(taskManager);
+
+
+        /*System.out.println("Удаляю все задачи");
+        taskManager.removeAllTasks();
+        printAllList(taskManager);*/
 
     }
 
-    public static void printAllList(TaskManager taskManager){
+    public static void printAllList(TaskManager taskManager) {
         System.out.println("Весь список канбан доски");
         ArrayList<Object> allTasks = taskManager.getListOfAllTasks();
 
