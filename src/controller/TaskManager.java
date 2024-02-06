@@ -1,9 +1,9 @@
-package Controller;
+package controller;
 
-import Model.Epic;
-import Model.Subtask;
-import Model.Task;
-import Model.TaskStatus;
+import model.Epic;
+import model.Subtask;
+import model.Task;
+import model.TaskStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,10 +33,12 @@ public class TaskManager {
 
         return epic;
     }
-    public boolean checkIsEpic(long epicId){
+
+    public boolean checkIsEpic(long epicId) {
         Object currentEpic = getEntityById(epicId);
         return currentEpic != null && currentEpic.getClass().equals(Epic.class);
     }
+
     public Subtask createNewSubtask(String title, String description, String status, long epicId) {
         // ТЗ пункт 2. D Создание Подзадачи
         if (checkIsEpic(epicId)) {
@@ -158,7 +160,6 @@ public class TaskManager {
 
     public ArrayList<Subtask> getListOfSubtaskByEpicId(long epicId) {
         // ТЗ пункт 3.А Получение списка всех подзадач определённого эпика.
-        // можно использовать метод класса Epic getSubtasks()
 
         ArrayList<Subtask> listOfSubtasks = new ArrayList<>();
 

@@ -1,8 +1,8 @@
-import Controller.TaskManager;
-import Model.Epic;
-import Model.Subtask;
-import Model.Task;
-import Model.TaskStatus;
+import controller.TaskManager;
+import model.Epic;
+import model.Subtask;
+import model.Task;
+import model.TaskStatus;
 
 import java.util.ArrayList;
 
@@ -103,8 +103,7 @@ public class Main {
     }
 
     public static void printAllList(TaskManager taskManager) {
-        System.out.println();
-        System.out.println("Весь список канбан доски");
+        System.out.println("\nВесь список канбан доски");
         ArrayList<Object> allTasks = taskManager.getListOfAllEntities();
 
         for (Object obj : allTasks) {

@@ -1,7 +1,4 @@
-package Model;
-
-import java.util.ArrayList;
-import java.util.Arrays;
+package model;
 
 public class Epic extends Task {
 
@@ -24,7 +21,4 @@ public class Epic extends Task {
                 '}';
     }
 
-    public Epic(Task task) {
-        super(task.getTitle(), task.getDescription(), task.getStatus());
-    }
 }

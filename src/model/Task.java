@@ -1,6 +1,6 @@
-package Model;
+package model;
 
-import Controller.TaskManager;
+import controller.TaskManager;
 
 public class Task {
     String title;
@@ -15,11 +15,16 @@ public class Task {
         this.status = taskStatus;
     }
 
+    public Task(String title, String description, TaskStatus status) {
+        this.title = title;
+        this.description = description;
+        this.id = TaskManager.generateId();
+        this.status = status;
+    }
+
     public long getId() {
         return id;
     }
-
-
 
     @Override
     public String toString() {
@@ -55,10 +60,4 @@ public class Task {
         this.status = status;
     }
 
-    public Task(String title, String description, TaskStatus status) {
-        this.title = title;
-        this.description = description;
-        this.id = TaskManager.generateId();
-        this.status = status;
-    }
 }
