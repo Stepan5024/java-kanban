@@ -1,3 +1,4 @@
+import controller.InMemoryTaskManager;
 import controller.TaskManager;
 import model.Epic;
 import model.Subtask;
@@ -11,7 +12,7 @@ public class Main {
     public static void main(String[] args) {
         // пример чтобы задача стала эпиком
 
-        TaskManager taskManager = new TaskManager();
+        InMemoryTaskManager taskManager = new InMemoryTaskManager();
         Task task1 = taskManager.createNewTask("Покупка", "продуктов", "NEW");
         Task task2 = taskManager.createNewTask("Уборка", "В комнате и на столе", "NEW");
 
@@ -57,9 +58,23 @@ public class Main {
                 TaskStatus.valueOf("DONE"), epic2.getId()), subtask4.getId());
         System.out.printf("Подзадача после обновления %s\n", subtask4);
 
-        printAllList(taskManager);
+        printAllTasks(taskManager);
 
-        System.out.println("Удаляю все подзадачи");
+        taskManager.getTaskById(task1.getId());
+        taskManager.getEpicById(epic1.getId());
+        taskManager.getEpicById(epic2.getId());
+        taskManager.getSubtaskById(subtask4.getId());
+        taskManager.getSubtaskById(subtask2.getId());
+        taskManager.getTaskById(task2.getId());
+        taskManager.getEpicById(epic1.getId());
+
+        System.out.println("История просмотров задач:");
+        ArrayList<Task> historyList = taskManager.getHistory();
+        for (Object item : historyList) {
+            System.out.println(item);
+        }
+
+        /*System.out.println("Удаляю все подзадачи");
         taskManager.removeEntityFromKanban(Subtask.class);
         printAllList(taskManager);
 
@@ -98,7 +113,7 @@ public class Main {
 
         System.out.println("Удаляю все задачи");
         System.out.println("Удалено " + taskManager.removeEntityFromKanban(Task.class));
-        printAllList(taskManager);
+        printAllList(taskManager);*/
 
     }
 
@@ -110,5 +125,29 @@ public class Main {
             System.out.println(obj);
         }
         System.out.println();
+    }
+
+    private static void printAllTasks(TaskManager manager) {
+        System.out.println("Задачи:");
+        for (Object task : manager.getAllEntitiesByClass(Task.class)) {
+            System.out.println(task);
+        }
+        System.out.println("Эпики:");
+        for (Object epic : manager.getAllEntitiesByClass(Epic.class)) {
+            System.out.println(epic);
+
+            for (Task task : manager.getListOfSubtaskByEpicId(((Epic) epic).getId())) {
+                System.out.println("--> " + task);
+            }
+        }
+        System.out.println("Подзадачи:");
+        for (Object subtask : manager.getAllEntitiesByClass(Subtask.class)) {
+            System.out.println(subtask);
+        }
+
+        System.out.println("История:");
+        for (Task task : manager.getHistory()) {
+            System.out.println(task);
+        }
     }
 }

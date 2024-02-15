@@ -1,6 +1,8 @@
 package model;
 
+import controller.InMemoryTaskManager;
 import controller.TaskManager;
+
 
 public class Task {
     String title;
@@ -16,9 +18,11 @@ public class Task {
     }
 
     public Task(String title, String description, TaskStatus status) {
+        TaskManager memoryTaskManager = new InMemoryTaskManager();
+
         this.title = title;
         this.description = description;
-        this.id = TaskManager.generateId();
+        this.id = memoryTaskManager.generateId();
         this.status = status;
     }
 
