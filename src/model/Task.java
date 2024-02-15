@@ -1,12 +1,13 @@
 package model;
 
-import controller.history.InMemoryHistoryManager;
 import controller.managers.InMemoryTaskManager;
 import controller.managers.TaskManager;
 import util.Managers;
 
 
 public class Task {
+
+
     String title;
     String description;
     long id;
@@ -64,6 +65,20 @@ public class Task {
 
     public void setStatus(TaskStatus status) {
         this.status = status;
+    }
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        Task other = (Task) obj;
+
+        // Сравнение полей объектов
+        return id == other.id;
+
     }
 
 }
