@@ -1,5 +1,6 @@
-package controller;
+package controller.managers;
 
+import controller.history.HistoryManager;
 import model.Epic;
 import model.Subtask;
 import model.Task;
@@ -8,12 +9,19 @@ import model.TaskStatus;
 import java.util.ArrayList;
 import java.util.List;
 
+
+
 public class InMemoryTaskManager implements TaskManager {
+    public static long getTaskId() {
+        return taskId;
+    }
+
     private static long taskId;
     private final ArrayList<Object> listOfAllTasks = new ArrayList<>();
-
-    int COUNT_OF_RECENT_TASK = 10;
-    private final List<Task> recentTasks = new ArrayList<>(COUNT_OF_RECENT_TASK);
+    private HistoryManager historyManager;
+    public InMemoryTaskManager(HistoryManager historyManager) {
+        this.historyManager = historyManager;
+    }
 
     @Override
     public long generateId() {
@@ -100,8 +108,8 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public <T> ArrayList<T> getListOfAllEntities() {
-        return (ArrayList<T>) listOfAllTasks;
+    public ArrayList<Object> getListOfAllEntities() {
+        return  listOfAllTasks;
     }
 
     @Override
@@ -123,8 +131,11 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Task getTaskById(long id) {
         Object task = getEntityById(id);
+
+
+
         if (task.getClass().equals(Task.class)) {
-            addToHistoryList(task);
+           historyManager.add((Task) task);
         } else {
             System.out.printf("Запрашиваемый id = %d не принадлежит Task, а является %s", id, task.getClass());
             return null;
@@ -133,21 +144,14 @@ public class InMemoryTaskManager implements TaskManager {
         return (Task) task;
     }
 
-    private void addToHistoryList(Object task) {
 
-        if(recentTasks.size() >= COUNT_OF_RECENT_TASK) {
-            recentTasks.remove(0);
-            recentTasks.add(recentTasks.size(), (Task) task);
-        } else {
-            recentTasks.add((Task) task);
-        }
-    }
 
     @Override
     public Epic getEpicById(long id) {
         Object task = getEntityById(id);
+
         if (task.getClass().equals(Epic.class)) {
-            addToHistoryList(task);
+            historyManager.add((Task) task);
         } else {
             System.out.printf("Запрашиваемый id = %d не принадлежит Epic, а является %s", id, task.getClass());
             return null;
@@ -159,8 +163,9 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Subtask getSubtaskById(long id) {
         Object task = getEntityById(id);
+
         if (task.getClass().equals(Subtask.class)) {
-            addToHistoryList(task);
+            historyManager.add((Task) task);
         } else {
             System.out.printf("Запрашиваемый id = %d не принадлежит Subtask, а является %s", id, task.getClass());
             return null;
@@ -168,19 +173,7 @@ public class InMemoryTaskManager implements TaskManager {
         return (Subtask) task;
     }
 
-    @Override
-    public ArrayList<Task> getHistory() {
 
-
-        ArrayList<Task> historyList = new ArrayList<>(COUNT_OF_RECENT_TASK);
-        int size = recentTasks.size();
-        int startIndex = Math.max(0, size - COUNT_OF_RECENT_TASK);
-
-        for (int i = startIndex; i < size; i++) {
-            historyList.add((Task) recentTasks.get(i));
-        }
-        return historyList;
-    }
 
     @Override
     public int removeEntityFromKanban(Class<?> aClass) {
@@ -271,8 +264,8 @@ public class InMemoryTaskManager implements TaskManager {
         if (index != -1) {
             listOfAllTasks.remove(index);
             listOfAllTasks.add(index, newTask);
-            changeEpicStatusAfterChangeSubtask(newTask);
 
+            changeEpicStatusAfterChangeSubtask(newTask);
             return listOfAllTasks.get(index);
         }
         System.out.println("Переданного Id нету в списке задач");

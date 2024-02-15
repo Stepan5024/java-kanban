@@ -1,4 +1,4 @@
-package controller;
+package controller.managers;
 
 import model.Epic;
 import model.Subtask;
@@ -29,8 +29,6 @@ public interface TaskManager {
     Subtask getSubtaskById(long id);
 
     Task getTaskById(long id);
-
-    ArrayList<Task> getHistory();
 
     int removeEntityFromKanban(Class<?> aClass);
 

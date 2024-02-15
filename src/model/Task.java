@@ -1,7 +1,9 @@
 package model;
 
-import controller.InMemoryTaskManager;
-import controller.TaskManager;
+import controller.history.InMemoryHistoryManager;
+import controller.managers.InMemoryTaskManager;
+import controller.managers.TaskManager;
+import util.Managers;
 
 
 public class Task {
@@ -18,7 +20,7 @@ public class Task {
     }
 
     public Task(String title, String description, TaskStatus status) {
-        TaskManager memoryTaskManager = new InMemoryTaskManager();
+        TaskManager memoryTaskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
 
         this.title = title;
         this.description = description;
@@ -33,7 +35,7 @@ public class Task {
     @Override
     public String toString() {
         return "Task{" +
-                "id='" + id + '\'' +
+                "id=" + id  +
                 ", title=" + title +
                 ", description='" + description + '\'' +
                 ", status=" + status +

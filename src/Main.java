@@ -1,9 +1,11 @@
-import controller.InMemoryTaskManager;
-import controller.TaskManager;
+import controller.history.InMemoryHistoryManager;
+import controller.managers.InMemoryTaskManager;
+import controller.managers.TaskManager;
 import model.Epic;
 import model.Subtask;
 import model.Task;
 import model.TaskStatus;
+import util.Managers;
 
 import java.util.ArrayList;
 
@@ -12,7 +14,7 @@ public class Main {
     public static void main(String[] args) {
         // пример чтобы задача стала эпиком
 
-        InMemoryTaskManager taskManager = new InMemoryTaskManager();
+        InMemoryTaskManager taskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
         Task task1 = taskManager.createNewTask("Покупка", "продуктов", "NEW");
         Task task2 = taskManager.createNewTask("Уборка", "В комнате и на столе", "NEW");
 
@@ -53,12 +55,19 @@ public class Main {
 
         printAllList(taskManager);
         System.out.printf("Подзадача до обновления %s\n", subtask4);
+        System.out.println("subtask4.getId() " + subtask4.getId());
+
         subtask4 = (Subtask) taskManager.updateTask(new Subtask("newSubtask",
                 "newDescription",
-                TaskStatus.valueOf("DONE"), epic2.getId()), subtask4.getId());
+                TaskStatus.valueOf("DONE"),
+                subtask4.getEpicId(),
+                subtask4.getId()), subtask4.getId());
+
         System.out.printf("Подзадача после обновления %s\n", subtask4);
 
-        printAllTasks(taskManager);
+        Task task3 = taskManager.createNewTask("Программирование",
+                "на java", "NEW");
+
 
         taskManager.getTaskById(task1.getId());
         taskManager.getEpicById(epic1.getId());
@@ -68,12 +77,7 @@ public class Main {
         taskManager.getTaskById(task2.getId());
         taskManager.getEpicById(epic1.getId());
 
-        System.out.println("История просмотров задач:");
-        ArrayList<Task> historyList = taskManager.getHistory();
-        for (Object item : historyList) {
-            System.out.println(item);
-        }
-
+        printAllTasks(taskManager);
         /*System.out.println("Удаляю все подзадачи");
         taskManager.removeEntityFromKanban(Subtask.class);
         printAllList(taskManager);
@@ -144,9 +148,9 @@ public class Main {
         for (Object subtask : manager.getAllEntitiesByClass(Subtask.class)) {
             System.out.println(subtask);
         }
-
+        InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
         System.out.println("История:");
-        for (Task task : manager.getHistory()) {
+        for (Task task : historyManager.getHistory()) {
             System.out.println(task);
         }
     }
