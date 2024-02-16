@@ -10,15 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-
 public class InMemoryTaskManager implements TaskManager {
-    public static long getTaskId() {
-        return taskId;
-    }
 
     private static long taskId;
     private final ArrayList<Object> listOfAllTasks = new ArrayList<>();
-    private HistoryManager historyManager;
+    private final HistoryManager historyManager;
+
     public InMemoryTaskManager(HistoryManager historyManager) {
         this.historyManager = historyManager;
     }
@@ -26,6 +23,10 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public long generateId() {
         return taskId++;
+    }
+
+    public static long getId() {
+        return taskId;
     }
 
     @Override
@@ -109,7 +110,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public ArrayList<Object> getListOfAllEntities() {
-        return  listOfAllTasks;
+        return listOfAllTasks;
     }
 
     @Override
@@ -133,9 +134,8 @@ public class InMemoryTaskManager implements TaskManager {
         Object task = getEntityById(id);
 
 
-
         if (task.getClass().equals(Task.class)) {
-           historyManager.add((Task) task);
+            historyManager.add((Task) task);
         } else {
             System.out.printf("Запрашиваемый id = %d не принадлежит Task, а является %s", id, task.getClass());
             return null;
@@ -143,7 +143,6 @@ public class InMemoryTaskManager implements TaskManager {
 
         return (Task) task;
     }
-
 
 
     @Override
@@ -172,7 +171,6 @@ public class InMemoryTaskManager implements TaskManager {
         }
         return (Subtask) task;
     }
-
 
 
     @Override
@@ -243,32 +241,54 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Object updateTask(Object newTask, long taskId) {
+        // taskId - id задачи которую хотим заменить
         // ТЗ 2. E Обновление объекта новой версией.
         // логика работы
         // 1. Находим индекс таски в списке
         // 2. Удаляем элемент по индексу
         // 3. Вставляем новый объект по индексу
+        // 4. Возвращаем вставленную задачу
 
         int index = -1;
 
         for (int i = 0; i < getListOfAllEntities().size(); i++) {
             Object obj = getListOfAllEntities().get(i);
-            if (obj.getClass().equals(Subtask.class) && ((Subtask) obj).getId() == taskId) {
+            if (obj.getClass().equals(Subtask.class)
+                    && ((Subtask) obj).getId() == taskId
+                    && ((Subtask) newTask).getId() == taskId) {
                 index = i;
-            } else if (obj.getClass().equals(Task.class) && ((Task) obj).getId() == taskId) {
+            } else if (obj.getClass().equals(Task.class)
+                    && ((Task) obj).getId() == taskId
+                    && ((Task) newTask).getId() == taskId) {
                 index = i;
-            } else if (obj.getClass().equals(Epic.class) && ((Epic) obj).getId() == taskId) {
+            } else if (obj.getClass().equals(Epic.class)
+                    && ((Epic) obj).getId() == taskId
+                    && ((Epic) newTask).getId() == taskId) {
                 index = i;
             }
         }
         if (index != -1) {
+            if (checkIsEpic(taskId)) {
+                // пытаемся обновить по id эпика не объект эпика
+                if (!newTask.getClass().equals(Epic.class)) {
+                    System.out.printf("Нельзя обновить переданный id %d эпика объектом отличного от Epic класса (%s)\n",
+                            taskId, newTask.getClass());
+                    return null;
+                }
+            } else if (newTask.getClass().equals(Subtask.class) && !checkIsEpic(((Subtask) newTask).getEpicId())) {
+                // поптка обновить подзадачу с id epic который не принадлежит epic
+                System.out.printf("Нельзя обновить переданный id %d подзадачи, потому что по атрибуту EpicId" +
+                                " не нашлось объекта класса Epic\n",
+                        taskId);
+                return null;
+            }
             listOfAllTasks.remove(index);
             listOfAllTasks.add(index, newTask);
 
             changeEpicStatusAfterChangeSubtask(newTask);
             return listOfAllTasks.get(index);
         }
-        System.out.println("Переданного Id нету в списке задач");
+        System.out.println("Переданный объект должен иметь тот же id что и назначаемый id");
         return null;
     }
 

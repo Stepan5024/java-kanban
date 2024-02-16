@@ -6,8 +6,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class SubtaskTest {
     static Epic epic;
     long expectedIdEpic;
@@ -16,7 +14,7 @@ class SubtaskTest {
     @BeforeEach
     void init() {
         epic = new Epic("Epic Title", "Epic description", TaskStatus.NEW);
-        expectedIdEpic = InMemoryTaskManager.getTaskId() - 1;
+        expectedIdEpic = InMemoryTaskManager.getId() - 1;
         subtask = new Subtask("Subtask Title", "Subtask description", TaskStatus.NEW, epic.getId());
 
     }

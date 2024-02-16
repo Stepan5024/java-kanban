@@ -19,15 +19,12 @@ public class Main {
         Task task2 = taskManager.createNewTask("Уборка", "В комнате и на столе", "NEW");
 
         Epic epic1 = taskManager.createNewEpic("Переезд",
-                "Новая квартира по адресу Москва ул. Дружбы"
-        );
+                "Новая квартира по адресу Москва ул. Дружбы");
         Epic epic2 = taskManager.createNewEpic("Важный эпик 2",
-                "Описание эпика 2"
-        );
+                "Описание эпика 2");
 
         Epic epic3 = taskManager.createNewEpic("Важный эпик 3",
-                "Описание эпика 3"
-        );
+                "Описание эпика 3");
 
         Subtask subtask1 = taskManager.createNewSubtask(
                 "Собрать коробки",
@@ -103,7 +100,8 @@ public class Main {
         System.out.printf("Задача %s до обновления\n", task2);
         task2 = (Task) taskManager.updateTask(new Task("newTitle after updating",
                 "newDescription",
-                TaskStatus.valueOf("DONE")), task2.getId());
+                TaskStatus.valueOf("DONE"),
+                task2.getId()), task2.getId());
         System.out.printf("Задача %s после обновления\n", task2);
         printAllList(taskManager);
 
