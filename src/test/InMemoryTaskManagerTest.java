@@ -76,7 +76,6 @@ class InMemoryTaskManagerTest {
         Epic epic = memoryTaskManagerTest.createNewEpic("Переезд",
                 "Новая квартира по адресу Москва ул. Дружбы");
 
-
         Subtask subtask = memoryTaskManagerTest.createNewSubtask(
                 "Собрать коробки",
                 "Вещи + одежду",

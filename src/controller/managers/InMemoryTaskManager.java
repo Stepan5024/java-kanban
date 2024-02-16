@@ -255,14 +255,17 @@ public class InMemoryTaskManager implements TaskManager {
             Object obj = getListOfAllEntities().get(i);
             if (obj.getClass().equals(Subtask.class)
                     && ((Subtask) obj).getId() == taskId
+                    && (newTask.getClass().equals(Subtask.class))
                     && ((Subtask) newTask).getId() == taskId) {
                 index = i;
             } else if (obj.getClass().equals(Task.class)
                     && ((Task) obj).getId() == taskId
+                    && (newTask.getClass().equals(Task.class))
                     && ((Task) newTask).getId() == taskId) {
                 index = i;
             } else if (obj.getClass().equals(Epic.class)
                     && ((Epic) obj).getId() == taskId
+                    && (newTask.getClass().equals(Epic.class))
                     && ((Epic) newTask).getId() == taskId) {
                 index = i;
             }
