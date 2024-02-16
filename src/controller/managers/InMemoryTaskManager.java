@@ -291,7 +291,8 @@ public class InMemoryTaskManager implements TaskManager {
             changeEpicStatusAfterChangeSubtask(newTask);
             return listOfAllTasks.get(index);
         }
-        System.out.println("Переданный объект должен иметь тот же id что и назначаемый id");
+        System.out.printf("Переданный объект %s должен иметь тот же id %d что и назначаемый id %d\n",
+        newTask.toString(), ((Task) newTask).getId(), taskId);
         return null;
     }
 
