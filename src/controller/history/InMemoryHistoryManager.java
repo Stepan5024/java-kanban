@@ -10,9 +10,10 @@ public class InMemoryHistoryManager implements HistoryManager {
     public static int COUNT_OF_RECENT_TASK = 10;
     private static final List<Task> recentTasks = new ArrayList<>(COUNT_OF_RECENT_TASK);
 
-    public List<Task> getRecentTasks(){
+    public List<Task> getRecentTasks() {
         return recentTasks;
     }
+
     @Override
     public ArrayList<Task> getHistory() {
 

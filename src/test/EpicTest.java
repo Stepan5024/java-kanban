@@ -9,7 +9,7 @@ class EpicTest {
     static Epic epic = new Epic("Epic Title", "Epic description", TaskStatus.NEW);
 
     @Test
-    void testGetId(){
+    void testGetId() {
 
         long expected = InMemoryTaskManager.getId() - 1;
         long idEpic = epic.getId();

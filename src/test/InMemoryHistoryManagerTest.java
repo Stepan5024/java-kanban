@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class InMemoryHistoryManagerTest {
     InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
     InMemoryTaskManager memoryTaskManagerTest = new InMemoryTaskManager(Managers.getDefaultHistory());
+
     @Test
     void getHistory() {
         ArrayList<Task> expectedList = new ArrayList<>(COUNT_OF_RECENT_TASK);
@@ -62,7 +63,7 @@ class InMemoryHistoryManagerTest {
         historyManager.add(subtask4);
 
         ArrayList<Task> listOfReturnedHistory = historyManager.getHistory();
-        Assertions.assertTrue( listOfReturnedHistory.size() <= COUNT_OF_RECENT_TASK,
+        Assertions.assertTrue(listOfReturnedHistory.size() <= COUNT_OF_RECENT_TASK,
                 String.format("В возвращенном списке количества просмотренных задач отличное " +
                         "значение от COUNT_OF_RECENT_TASK = %d", COUNT_OF_RECENT_TASK));
         for (int i = 0; i < expectedList.size(); i++) {
