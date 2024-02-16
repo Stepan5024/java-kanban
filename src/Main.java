@@ -12,47 +12,41 @@ import java.util.ArrayList;
 public class Main {
 
     public static void main(String[] args) {
-        // пример чтобы задача стала эпиком
 
         InMemoryTaskManager taskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
         Task task1 = taskManager.createNewTask("Покупка", "продуктов", "NEW");
         Task task2 = taskManager.createNewTask("Уборка", "В комнате и на столе", "NEW");
-
         Epic epic1 = taskManager.createNewEpic("Переезд",
                 "Новая квартира по адресу Москва ул. Дружбы");
         Epic epic2 = taskManager.createNewEpic("Важный эпик 2",
                 "Описание эпика 2");
-
         Epic epic3 = taskManager.createNewEpic("Важный эпик 3",
                 "Описание эпика 3");
-
         Subtask subtask1 = taskManager.createNewSubtask(
                 "Собрать коробки",
                 "Вещи + одежду",
                 "NEW",
                 epic1.getId());
-
         Subtask subtask2 = taskManager.createNewSubtask(
                 "Упаковать кошку",
                 "Кошка белая",
                 "NEW",
                 epic1.getId());
-
         Subtask subtask3 = taskManager.createNewSubtask(
                 "Сказать слова прощания",
                 "Поехали!",
                 "DONE",
                 epic1.getId());
-
         Subtask subtask4 = taskManager.createNewSubtask(
                 "mysubtask4",
                 "subtask4!",
                 "IN_PROGRESS",
                 epic2.getId());
+        Task task3 = taskManager.createNewTask("Программирование",
+                "на java", "NEW");
 
         printAllList(taskManager);
         System.out.printf("Подзадача до обновления %s\n", subtask4);
-        System.out.println("subtask4.getId() " + subtask4.getId());
 
         subtask4 = (Subtask) taskManager.updateTask(new Subtask("newSubtask",
                 "newDescription",
@@ -62,10 +56,6 @@ public class Main {
 
         System.out.printf("Подзадача после обновления %s\n", subtask4);
 
-        Task task3 = taskManager.createNewTask("Программирование",
-                "на java", "NEW");
-
-
         taskManager.getTaskById(task1.getId());
         taskManager.getEpicById(epic1.getId());
         taskManager.getEpicById(epic2.getId());
@@ -74,8 +64,16 @@ public class Main {
         taskManager.getTaskById(task2.getId());
         taskManager.getEpicById(epic1.getId());
 
+        InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
+        ArrayList<Task> listHistory =  historyManager.getHistory();
+        System.out.println("\nИстория просмотра задач:");
+        for (Task task : listHistory) {
+            System.out.println(task);
+        }
+
         printAllTasks(taskManager);
-        /*System.out.println("Удаляю все подзадачи");
+
+        System.out.println("Удаляю все подзадачи");
         taskManager.removeEntityFromKanban(Subtask.class);
         printAllList(taskManager);
 
@@ -88,7 +86,6 @@ public class Main {
         }
         printAllList(taskManager);
 
-
         System.out.printf("Удаляю эпик id = %d\n", epic1.getId());
         int result = taskManager.removeTaskById(epic1.getId());
         if (result > 0) {
@@ -96,13 +93,12 @@ public class Main {
         }
         printAllList(taskManager);
 
-
-        System.out.printf("Задача %s до обновления\n", task2);
+        System.out.printf("Задача до обновления %s\n", task2);
         task2 = (Task) taskManager.updateTask(new Task("newTitle after updating",
                 "newDescription",
                 TaskStatus.valueOf("DONE"),
                 task2.getId()), task2.getId());
-        System.out.printf("Задача %s после обновления\n", task2);
+        System.out.printf("Задача после обновления %s\n", task2);
         printAllList(taskManager);
 
         ArrayList<Object> tasks = taskManager.getAllEntitiesByClass(Task.class);
@@ -115,8 +111,7 @@ public class Main {
 
         System.out.println("Удаляю все задачи");
         System.out.println("Удалено " + taskManager.removeEntityFromKanban(Task.class));
-        printAllList(taskManager);*/
-
+        printAllList(taskManager);
     }
 
     public static void printAllList(TaskManager taskManager) {
@@ -130,6 +125,7 @@ public class Main {
     }
 
     private static void printAllTasks(TaskManager manager) {
+        System.out.println();
         System.out.println("Задачи:");
         for (Object task : manager.getAllEntitiesByClass(Task.class)) {
             System.out.println(task);
@@ -151,5 +147,6 @@ public class Main {
         for (Task task : historyManager.getHistory()) {
             System.out.println(task);
         }
+        System.out.println();
     }
 }

@@ -36,7 +36,7 @@ public class Task {
     @Override
     public String toString() {
         return "Task{" +
-                "id=" + id  +
+                "id=" + id +
                 ", title=" + title +
                 ", description='" + description + '\'' +
                 ", status=" + status +
@@ -66,6 +66,7 @@ public class Task {
     public void setStatus(TaskStatus status) {
         this.status = status;
     }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {

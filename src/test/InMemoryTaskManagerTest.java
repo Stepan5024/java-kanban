@@ -38,11 +38,13 @@ class InMemoryTaskManagerTest {
         Assertions.assertTrue(result);
 
     }
+
     @Test
     void checkIsNotEpic() {
         boolean result = memoryTaskManagerTest.checkIsEpic(1);
         Assertions.assertFalse(result);
     }
+
     @Test
     void addNewTask() {
 
@@ -57,8 +59,9 @@ class InMemoryTaskManagerTest {
         assertEquals(1, tasks.size(), "Неверное количество задач.");
         assertEquals(task, tasks.get(0), "Задачи не совпадают.");
     }
+
     @Test
-    void checkThatSubtaskDoNotAddedHowOwnEpic(){
+    void checkThatSubtaskDoNotAddedHowOwnEpic() {
 
         long idNewSubtask = InMemoryTaskManager.getId();
         Subtask subtask = memoryTaskManagerTest.createNewSubtask(
@@ -69,7 +72,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void checkThatEpicDoNotAddedHowSubtask(){
+    void checkThatEpicDoNotAddedHowSubtask() {
         Epic epic = memoryTaskManagerTest.createNewEpic("Переезд",
                 "Новая квартира по адресу Москва ул. Дружбы");
 
@@ -83,6 +86,7 @@ class InMemoryTaskManagerTest {
 
         Assertions.assertNull(subtask2, "Нельзя обновить эпик как подзадачу");
     }
+
     @Test
     void createNewTask() {
         Task task = memoryTaskManagerTest.createNewTask("Переезд",
@@ -94,6 +98,7 @@ class InMemoryTaskManagerTest {
         Task temp = memoryTaskManagerTest.getTaskById(task.getId());
         Assertions.assertNotNull(temp, String.format("Не была найдена созданная task по id %d", task.getId()));
     }
+
     @Test
     void createNewEpic() {
         Epic epic1 = memoryTaskManagerTest.createNewEpic("Переезд",
@@ -105,6 +110,7 @@ class InMemoryTaskManagerTest {
         Epic temp = memoryTaskManagerTest.getEpicById(epic1.getId());
         Assertions.assertNotNull(temp, String.format("Не был найден созданный epic по id %d", epic1.getId()));
     }
+
     @Test
     void createNewSubtask() {
         Epic epic1 = memoryTaskManagerTest.createNewEpic("Переезд",
@@ -121,19 +127,21 @@ class InMemoryTaskManagerTest {
         Subtask temp = memoryTaskManagerTest.getSubtaskById(subtask.getId());
         Assertions.assertNotNull(temp, String.format("Не была найдена созданная subtask по id %d", subtask.getId()));
     }
-@Test
-void updateTask(){
 
-    Task task1 = memoryTaskManagerTest.createNewTask("Переезд",
-            "Новая квартира по адресу Москва ул. Дружбы", "DONE");
-    Task task2 = (Task) memoryTaskManagerTest.updateTask(new Task("new title",
-            "new desc", NEW, task1.getId()), task1.getId());
-
-    Assertions.assertEquals(task1, task2, "task1 != task2 по id");
-
-}
     @Test
-    void testThatAllEntityWithUniqueId(){
+    void updateTask() {
+
+        Task task1 = memoryTaskManagerTest.createNewTask("Переезд",
+                "Новая квартира по адресу Москва ул. Дружбы", "DONE");
+        Task task2 = (Task) memoryTaskManagerTest.updateTask(new Task("new title",
+                "new desc", NEW, task1.getId()), task1.getId());
+
+        Assertions.assertEquals(task1, task2, "task1 != task2 по id");
+
+    }
+
+    @Test
+    void testThatAllEntityWithUniqueId() {
         Task task1 = new Task("Покупка", "продуктов", NEW, 0);
         Task task2 = new Task("Уборка", "В комнате и на столе", NEW, 0);
         Task task3 = memoryTaskManagerTest.createNewTask("Переезд",
@@ -145,14 +153,13 @@ void updateTask(){
         Epic epic2 = memoryTaskManagerTest.createNewEpic("Переезд",
                 "Новая квартира по адресу Москва ул. Дружбы");
 
-        Epic epic3  = (Epic) memoryTaskManagerTest.updateTask(epic0, epic2.getId());
+        Epic epic3 = (Epic) memoryTaskManagerTest.updateTask(epic0, epic2.getId());
         Assertions.assertNull(epic3, "Переданный объект должен иметь тот же id что и назначаемый id");
-
 
 
         HashMap<Long, Integer> listOfId = new HashMap<>();
 
-        List<Object> list =  memoryTaskManagerTest.getListOfAllEntities();
+        List<Object> list = memoryTaskManagerTest.getListOfAllEntities();
         for (Object obj : list) {
             Task task = (Task) obj;
             listOfId.merge(task.getId(), 1, Integer::sum);
