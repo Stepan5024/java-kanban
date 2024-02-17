@@ -1,17 +1,17 @@
-import controller.history.InMemoryHistoryManager;
+package controller.history;
+
 import controller.managers.InMemoryTaskManager;
 import model.Epic;
 import model.Subtask;
 import model.Task;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import util.Managers;
+
+import manager.Managers;
 
 import java.util.ArrayList;
 
 import static controller.history.InMemoryHistoryManager.COUNT_OF_RECENT_TASK;
-import static model.TaskStatus.NEW;
-import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryHistoryManagerTest {
     InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
@@ -74,6 +74,8 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void add() {
+
+        int sizeHistoryListBefore = historyManager.getRecentTasks().size();
         Task task1 = memoryTaskManagerTest.createNewTask("Переезд",
                 "Новая квартира по адресу Москва ул. Дружбы", "DONE");
         Epic epic1 = memoryTaskManagerTest.createNewEpic("Переезд",
@@ -84,9 +86,10 @@ class InMemoryHistoryManagerTest {
         historyManager.add(task1);
         historyManager.add(epic1);
         historyManager.add(subtask1);
-        int sizeHistoryList = historyManager.getRecentTasks().size();
-        Assertions.assertEquals(3, sizeHistoryList, String.format("Было создано 3 " +
-                "просмотра - получено %d просмотров", sizeHistoryList));
+        int sizeHistoryListAfter = historyManager.getRecentTasks().size();
+        int sizeHistoryList = sizeHistoryListAfter - sizeHistoryListBefore;
+        Assertions.assertEquals(3, sizeHistoryList,
+                String.format("Было создано 3 просмотра - получено %d просмотров", sizeHistoryList));
 
     }
 }

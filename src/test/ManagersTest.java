@@ -1,9 +1,7 @@
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import util.Managers;
 
-import static org.junit.jupiter.api.Assertions.*;
+import manager.Managers;
 
 class ManagersTest {
 

@@ -1,15 +1,12 @@
-import controller.managers.InMemoryTaskManager;
+package controller.managers;
+
 import model.Epic;
 import model.Subtask;
 import model.Task;
-import model.TaskStatus;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import util.Managers;
 
-import java.util.ArrayList;
+import manager.Managers;
 import java.util.HashMap;
 import java.util.List;
 

@@ -2,7 +2,8 @@ package model;
 
 import controller.managers.InMemoryTaskManager;
 import controller.managers.TaskManager;
-import util.Managers;
+
+import manager.Managers;
 
 
 public class Task {
@@ -12,6 +13,7 @@ public class Task {
     String description;
     long id;
     TaskStatus status;
+
 
     public Task(String title, String description, TaskStatus taskStatus, long id) {
         this.title = title;
