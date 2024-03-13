@@ -133,7 +133,6 @@ public class InMemoryTaskManager implements TaskManager {
     public Task getTaskById(long id) {
         Object task = getEntityById(id);
 
-
         if (task.getClass().equals(Task.class)) {
             historyManager.add((Task) task);
         } else {
@@ -143,7 +142,6 @@ public class InMemoryTaskManager implements TaskManager {
 
         return (Task) task;
     }
-
 
     @Override
     public Epic getEpicById(long id) {
@@ -171,7 +169,6 @@ public class InMemoryTaskManager implements TaskManager {
         }
         return (Subtask) task;
     }
-
 
     @Override
     public int removeEntityFromKanban(Class<?> aClass) {
@@ -217,6 +214,7 @@ public class InMemoryTaskManager implements TaskManager {
         int countDeletedItems = tasksToRemove.size();
 
         for (Object task : tasksToRemove) {
+            historyManager.remove(((Task) task).getId());
             listOfAllTasks.remove(task);
         }
 
@@ -292,7 +290,7 @@ public class InMemoryTaskManager implements TaskManager {
             return listOfAllTasks.get(index);
         }
         System.out.printf("Переданный объект %s должен иметь тот же id %d что и назначаемый id %d\n",
-        newTask.toString(), ((Task) newTask).getId(), taskId);
+                newTask.toString(), ((Task) newTask).getId(), taskId);
         return null;
     }
 
