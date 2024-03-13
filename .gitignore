@@ -1,21 +1,11 @@
 # IntelliJ IDEA specific files
-.idea/
-*.iml
-*.iws
-*.ipr
-out/
+
 
 # Maven
-target/
-pom.xml.tag
-pom.xml.releaseBackup
-pom.xml.versionsBackup
-pom.xml.next
-release.properties
+
 
 # Gradle
-.gradle/
-build/
+
 
 # OS-specific files
 .DS_Store
