@@ -1,5 +1,6 @@
 package controller.managers;
 
+import controller.history.InMemoryHistoryManager;
 import model.Epic;
 import model.Subtask;
 import model.Task;
@@ -162,5 +163,52 @@ class InMemoryTaskManagerTest {
             Assertions.assertEquals(1, listOfId.get(task.getId()), String.format("На kanban доске " +
                     "обнаружены дубли id %d", task.getId()));
         }
+    }
+
+    @Test
+    void removeSubTaskAndCheckThatThereDeletedFromEpicTest() {
+
+        InMemoryTaskManager taskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
+
+        Epic firstEpic = taskManager.createNewEpic("First Epic", "Description");
+        Subtask secondTask = taskManager.createNewSubtask("Second Subtask", "Description",
+                "NEW", firstEpic.getId());
+        Subtask thirdTask = taskManager.createNewSubtask("Third SubTask", "Description",
+                "NEW", firstEpic.getId());
+
+
+        taskManager.removeTaskById(secondTask.getId());
+
+        assertFalse(taskManager.getListOfSubtaskByEpicId(firstEpic.getId()).contains(secondTask),
+                "Подзадача была удалена и не должна больше принадлежать эпику");
+        assertFalse(taskManager.getListOfAllEntities().contains(secondTask.getId()),
+                "Задача удалена и не должна содержать свой Id в списке задач");
+
+    }
+
+    @Test
+    void removeEpicWithSubtaskFromAndCheckHistoryTest() {
+        InMemoryTaskManager taskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
+        InMemoryHistoryManager historyManager = (InMemoryHistoryManager) taskManager.getHistoryManager();
+
+        Epic firstEpic = taskManager.createNewEpic("First Epic", "Description");
+        Subtask secondTask = taskManager.createNewSubtask("Second Subtask", "Description",
+                "NEW", firstEpic.getId());
+        Subtask thirdTask = taskManager.createNewSubtask("Third SubTask", "Description",
+                "NEW", firstEpic.getId());
+
+        Task fourthTask = taskManager.createNewTask("fourth Task", "Description", "NEW");
+
+        taskManager.getEpicById(firstEpic.getId());
+        taskManager.getSubtaskById(secondTask.getId());
+        taskManager.getSubtaskById(thirdTask.getId());
+        taskManager.getTaskById(fourthTask.getId());
+
+        taskManager.removeTaskById(firstEpic.getId());
+
+        assertFalse(historyManager.getHistory().contains(secondTask), "Вторая задача должна быть удалена");
+        assertFalse(historyManager.getHistory().contains(firstEpic), "Первая задача не должна была остаться");
+        assertFalse(historyManager.getHistory().contains(thirdTask), "Третья задача не должна была остаться");
+        assertTrue(historyManager.getHistory().contains(fourthTask), "Четвертая задача должна была остаться");
     }
 }

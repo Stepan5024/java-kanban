@@ -141,7 +141,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (task.getClass().equals(Task.class)) {
             historyManager.add((Task) task);
         } else {
-            System.out.printf("Запрашиваемый id = %d не принадлежит Task, а является %s", id, task.getClass());
+            System.out.printf("Запрашиваемый id = %d не принадлежит Task, а является %s\n", id, task.getClass());
             return null;
         }
 

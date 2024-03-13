@@ -85,9 +85,6 @@ public class Main {
         System.out.printf("Удаляю задачу с Id = %d, которая есть в истории ...\n\n", task1.getId());
         taskManager.removeTaskById(task1.getId());
         printHistory(historyManager);
-        boolean isTaskInHistory = taskManager.getHistoryManager().getHistory().stream()
-                .anyMatch(task -> task.getId() == task1.getId());
-        System.out.printf("Задача с Id = %d есть в истории? Ответ: %s\n", task1.getId(), isTaskInHistory);
 
         System.out.printf("\nУдаляю эпик с Id = %d, который есть в истории и имеет три подзадачи...\n",
                 epic1.getId());
