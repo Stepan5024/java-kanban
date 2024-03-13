@@ -1,5 +1,6 @@
 package controller.managers;
 
+import controller.history.HistoryManager;
 import model.Epic;
 import model.Subtask;
 import model.Task;
@@ -39,4 +40,6 @@ public interface TaskManager {
     ArrayList<Subtask> getListOfSubtaskByEpicId(long epicId);
 
     Object updateTask(Object newTask, long taskId);
+
+    HistoryManager getHistoryManager();
 }

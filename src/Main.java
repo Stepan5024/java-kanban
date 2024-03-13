@@ -1,3 +1,4 @@
+import controller.history.HistoryManager;
 import controller.history.InMemoryHistoryManager;
 import controller.managers.InMemoryTaskManager;
 import controller.managers.TaskManager;
@@ -13,6 +14,88 @@ public class Main {
 
     public static void main(String[] args) {
 
+        runUserScript2();
+    }
+    private static void runUserScript2() {
+        InMemoryTaskManager taskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
+        InMemoryHistoryManager historyManager = (InMemoryHistoryManager) taskManager.getHistoryManager();
+
+        System.out.println("Создаем две задачи ...");
+
+        Task task1 = taskManager.createNewTask("Покупка", "продуктов", "NEW");
+        Task task2 = taskManager.createNewTask("Уборка", "В комнате и на столе", "NEW");
+
+        System.out.println("Создаем эпик с тремя подзадачами ...");
+
+        Epic epic1 = taskManager.createNewEpic("Переезд",
+                "Новая квартира по адресу Москва ул. Дружбы");
+
+        Subtask subtask1 = taskManager.createNewSubtask(
+                "Собрать коробки",
+                "Вещи + одежду",
+                "NEW",
+                epic1.getId());
+        Subtask subtask2 = taskManager.createNewSubtask(
+                "Упаковать кошку",
+                "Кошка белая",
+                "NEW",
+                epic1.getId());
+        Subtask subtask3 = taskManager.createNewSubtask(
+                "Сказать слова прощания",
+                "Поехали!",
+                "DONE",
+                epic1.getId());
+        System.out.println("Создаем один эпик без подзадач ...");
+
+        Epic epic2 = taskManager.createNewEpic("Эпик без подзадач",
+                "просто пустой");
+
+        System.out.println("Запрос созданных задач несколько раз в разном порядке ...");
+
+
+        // Запрос созданных задач в разном порядке
+        System.out.printf("Запрос задачи c id = %d\n\n", task1.getId());
+        taskManager.getTaskById(task1.getId());
+        printHistory(historyManager);
+
+        System.out.printf("Запрос эпика с id = %d\n\n", epic1.getId());
+        taskManager.getEpicById(epic1.getId());
+        printHistory(historyManager);
+
+        System.out.printf("Запрос подзадачи с id = %d\n\n", subtask3.getId());
+        taskManager.getSubtaskById(subtask3.getId());
+        printHistory(historyManager);
+
+        System.out.printf("Запрос задачи c id = %d\n\n", task1.getId());
+        taskManager.getTaskById(task1.getId());
+        printHistory(historyManager);
+
+        System.out.printf("Запрос подзадачи с id = %d\n\n", subtask1.getId());
+        taskManager.getSubtaskById(subtask1.getId());
+        printHistory(historyManager);
+
+        System.out.printf("Запрос задачи с id = %d\n\n", task2.getId());
+        taskManager.getTaskById(task2.getId());
+        printHistory(historyManager);
+
+        System.out.printf("Запрос задачи c id = %d\n\n", task1.getId());
+        taskManager.getTaskById(task1.getId());
+        printHistory(historyManager);
+
+        System.out.printf("Удаляю задачу с Id = %d, которая есть в истории ...\n\n", task1.getId());
+        taskManager.removeTaskById(task1.getId());
+        printHistory(historyManager);
+        boolean isTaskInHistory = taskManager.getHistoryManager().getHistory().stream()
+                .anyMatch(task -> task.getId() == task1.getId());
+        System.out.printf("Задача с Id = %d есть в истории? Ответ: %s\n", task1.getId(), isTaskInHistory);
+
+        System.out.printf("\nУдаляю эпик с Id = %d, который есть в истории и имеет три подзадачи...\n",
+                epic1.getId());
+        taskManager.removeTaskById(epic1.getId());
+        printHistory(historyManager);
+
+    }
+    private static void runUserScript1() {
         InMemoryTaskManager taskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
         Task task1 = taskManager.createNewTask("Покупка", "продуктов", "NEW");
         Task task2 = taskManager.createNewTask("Уборка", "В комнате и на столе", "NEW");
@@ -64,12 +147,8 @@ public class Main {
         taskManager.getTaskById(task2.getId());
         taskManager.getEpicById(epic1.getId());
 
-        InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
-        ArrayList<Task> listHistory =  historyManager.getHistory();
-        System.out.println("\nИстория просмотра задач:");
-        for (Task task : listHistory) {
-            System.out.println(task);
-        }
+        InMemoryHistoryManager historyManager = (InMemoryHistoryManager) taskManager.getHistoryManager();
+        printHistory(historyManager);
 
         printAllTasks(taskManager);
 
@@ -114,6 +193,15 @@ public class Main {
         printAllList(taskManager);
     }
 
+    private static void printHistory(InMemoryHistoryManager historyManager) {
+        ArrayList<Task> listHistory = historyManager.getHistory();
+        System.out.printf("Размер истории просмотра количества задач равен %d\n", listHistory.size());
+        for (Task task : listHistory) {
+            System.out.println(task);
+        }
+        System.out.println();
+    }
+
     public static void printAllList(TaskManager taskManager) {
         System.out.println("\nВесь список канбан доски");
         ArrayList<Object> allTasks = taskManager.getListOfAllEntities();
@@ -142,7 +230,8 @@ public class Main {
         for (Object subtask : manager.getAllEntitiesByClass(Subtask.class)) {
             System.out.println(subtask);
         }
-        InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
+        // Используйте существующий объект InMemoryHistoryManager через TaskManager
+        HistoryManager historyManager = manager.getHistoryManager();
         System.out.println("История:");
         for (Task task : historyManager.getHistory()) {
             System.out.println(task);

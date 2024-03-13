@@ -14,10 +14,15 @@ public class InMemoryTaskManager implements TaskManager {
 
     private static long taskId;
     private final ArrayList<Object> listOfAllTasks = new ArrayList<>();
+
     private final HistoryManager historyManager;
 
     public InMemoryTaskManager(HistoryManager historyManager) {
         this.historyManager = historyManager;
+    }
+
+    public HistoryManager getHistoryManager() {
+        return historyManager;
     }
 
     @Override
