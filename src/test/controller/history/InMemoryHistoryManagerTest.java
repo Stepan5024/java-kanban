@@ -48,6 +48,7 @@ class InMemoryHistoryManagerTest {
         assertEquals(secondTask, historyManager.getHistory().get(1), "Вторая задача не равна второй задачи в " +
                 "истории просмотра");
     }
+
     @Test
     void getHistoryUniqueTask() {
         ArrayList<Task> expectedList = new ArrayList<>();
@@ -134,7 +135,7 @@ class InMemoryHistoryManagerTest {
         listOfReturnedHistory = historyManager.getHistory();
         int expected1 = 1;
         assertEquals(expected1, listOfReturnedHistory.size(),
-                String.format("Было создано %d уникальных просмотров, а вернулось %d",expected1, listOfReturnedHistory.size()));
+                String.format("Было создано %d уникальных просмотров, а вернулось %d", expected1, listOfReturnedHistory.size()));
         for (int i = 0; i < expectedList.size(); i++) {
             assertEquals(expectedList.get(i), listOfReturnedHistory.get(i), String.format("Объекты" +
                     " в истории не равны %s %s", expectedList.get(i), listOfReturnedHistory.get(i)));
@@ -145,7 +146,7 @@ class InMemoryHistoryManagerTest {
         expected1 = 2;
         listOfReturnedHistory = historyManager.getHistory();
         assertEquals(expected1, listOfReturnedHistory.size(),
-                String.format("Было создано %d уникальных просмотров, а вернулось %d",expected1, listOfReturnedHistory.size()));
+                String.format("Было создано %d уникальных просмотров, а вернулось %d", expected1, listOfReturnedHistory.size()));
         for (int i = 0; i < expectedList.size(); i++) {
             assertEquals(expectedList.get(i), listOfReturnedHistory.get(i), String.format("Объекты" +
                     " в истории не равны %s %s", expectedList.get(i), listOfReturnedHistory.get(i)));
@@ -156,7 +157,7 @@ class InMemoryHistoryManagerTest {
         expected1 = 3;
         listOfReturnedHistory = historyManager.getHistory();
         assertEquals(expected1, listOfReturnedHistory.size(),
-                String.format("Было создано %d уникальных просмотров, а вернулось %d",expected1, listOfReturnedHistory.size()));
+                String.format("Было создано %d уникальных просмотров, а вернулось %d", expected1, listOfReturnedHistory.size()));
         for (int i = 0; i < expectedList.size(); i++) {
             assertEquals(expectedList.get(i), listOfReturnedHistory.get(i), String.format("Объекты" +
                     " в истории не равны %s %s", expectedList.get(i), listOfReturnedHistory.get(i)));
@@ -168,14 +169,13 @@ class InMemoryHistoryManagerTest {
 
         listOfReturnedHistory = historyManager.getHistory();
         assertEquals(expected1, listOfReturnedHistory.size(),
-                String.format("Было создано %d уникальных просмотров, а вернулось %d",expected1, listOfReturnedHistory.size()));
+                String.format("Было создано %d уникальных просмотров, а вернулось %d", expected1, listOfReturnedHistory.size()));
         for (int i = 0; i < expectedList.size(); i++) {
             assertEquals(expectedList.get(i), listOfReturnedHistory.get(i), String.format("Объекты" +
                     " в истории не равны %s %s", expectedList.get(i), listOfReturnedHistory.get(i)));
         }
 
     }
-
 
 
     @Test
@@ -215,7 +215,6 @@ class InMemoryHistoryManagerTest {
         assertTrue(historyManager.getHistory().contains(firstTask), "Первая задача должна была остаться");
         assertTrue(historyManager.getHistory().contains(thirdTask), "Третья задача должна была остаться");
     }
-
 
 
 }

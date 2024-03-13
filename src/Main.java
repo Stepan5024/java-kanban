@@ -8,6 +8,7 @@ import model.Task;
 import model.TaskStatus;
 
 import manager.Managers;
+
 import java.util.ArrayList;
 
 public class Main {
@@ -16,6 +17,7 @@ public class Main {
 
         runUserScript2();
     }
+
     private static void runUserScript2() {
         InMemoryTaskManager taskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
         InMemoryHistoryManager historyManager = (InMemoryHistoryManager) taskManager.getHistoryManager();
@@ -92,6 +94,7 @@ public class Main {
         printHistory(historyManager);
 
     }
+
     private static void runUserScript1() {
         InMemoryTaskManager taskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
         Task task1 = taskManager.createNewTask("Покупка", "продуктов", "NEW");
