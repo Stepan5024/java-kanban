@@ -1,9 +1,6 @@
 package model;
 
 import controller.managers.InMemoryTaskManager;
-import model.Epic;
-import model.Subtask;
-import model.TaskStatus;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
