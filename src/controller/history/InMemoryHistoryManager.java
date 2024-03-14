@@ -10,9 +10,9 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     private Node head;
     private Node tail;
-    private final HashMap<Long, Node> recentTasks = new HashMap<>();
+    private final Map<Long, Node> recentTasks = new HashMap<>();
 
-    public HashMap<Long, Node> getRecentTasks() {
+    public Map<Long, Node> getRecentTasks() {
         return recentTasks;
     }
 

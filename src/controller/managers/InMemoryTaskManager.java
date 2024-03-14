@@ -13,7 +13,7 @@ import java.util.List;
 public class InMemoryTaskManager implements TaskManager {
 
     private static long taskId;
-    private final ArrayList<Object> listOfAllTasks = new ArrayList<>();
+    private final List<Object> listOfAllTasks = new ArrayList<>();
 
     private final HistoryManager historyManager;
 
@@ -114,7 +114,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public ArrayList<Object> getListOfAllEntities() {
+    public List<Object> getListOfAllEntities() {
         return listOfAllTasks;
     }
 
@@ -190,9 +190,9 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public ArrayList<Object> getAllEntitiesByClass(Class<?> aClass) {
+    public List<Object> getAllEntitiesByClass(Class<?> aClass) {
         // ТЗ 2.A Получение списка всех задач, подзадач, эпиков
-        ArrayList<Object> entities = new ArrayList<>();
+        List<Object> entities = new ArrayList<>();
         for (Object obj : getListOfAllEntities()) {
             if (obj.getClass().equals(aClass)) {
                 entities.add(obj);
@@ -228,10 +228,10 @@ public class InMemoryTaskManager implements TaskManager {
 
 
     @Override
-    public ArrayList<Subtask> getListOfSubtaskByEpicId(long epicId) {
+    public List<Subtask> getListOfSubtaskByEpicId(long epicId) {
         // ТЗ пункт 3.А Получение списка всех подзадач определённого эпика.
 
-        ArrayList<Subtask> listOfSubtasks = new ArrayList<>();
+        List<Subtask> listOfSubtasks = new ArrayList<>();
 
         for (Object subtask : getAllEntitiesByClass(Subtask.class)) {
 

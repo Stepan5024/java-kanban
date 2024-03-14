@@ -10,6 +10,7 @@ import model.TaskStatus;
 import manager.Managers;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
 
@@ -157,7 +158,7 @@ public class Main {
         printAllList(taskManager);
 
 
-        ArrayList<Object> epics = taskManager.getAllEntitiesByClass(Epic.class);
+        List<Object> epics = taskManager.getAllEntitiesByClass(Epic.class);
         System.out.println("Всего эпиков " + epics.size());
         System.out.println("Список всех эпиков:");
         for (Object epic : epics) {
@@ -180,7 +181,7 @@ public class Main {
         System.out.printf("Задача после обновления %s\n", task2);
         printAllList(taskManager);
 
-        ArrayList<Object> tasks = taskManager.getAllEntitiesByClass(Task.class);
+        List<Object> tasks = taskManager.getAllEntitiesByClass(Task.class);
         System.out.println("Всего задач " + tasks.size());
         System.out.println("Список всех задач:");
         for (Object task : tasks) {
@@ -204,7 +205,7 @@ public class Main {
 
     public static void printAllList(TaskManager taskManager) {
         System.out.println("\nВесь список канбан доски");
-        ArrayList<Object> allTasks = taskManager.getListOfAllEntities();
+        List<Object> allTasks = taskManager.getListOfAllEntities();
 
         for (Object obj : allTasks) {
             System.out.println(obj);

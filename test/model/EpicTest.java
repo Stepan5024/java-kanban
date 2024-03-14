@@ -2,11 +2,22 @@ package model;
 
 import controller.managers.InMemoryTaskManager;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 class EpicTest {
 
-    static Epic epic = new Epic("Epic Title", "Epic description", TaskStatus.NEW);
+    static String firstEpicTitle;
+    static String firstEpicDescription;
+
+    static Epic epic;
+
+    @BeforeAll
+    static void initTextLabels() {
+        firstEpicTitle = "Написание диплома";
+        firstEpicDescription = "Для выпуска из университета";
+        epic = new Epic(firstEpicTitle, firstEpicDescription, TaskStatus.NEW);
+    }
 
     @Test
     void testGetId() {

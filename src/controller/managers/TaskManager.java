@@ -5,8 +5,7 @@ import model.Epic;
 import model.Subtask;
 import model.Task;
 
-
-import java.util.ArrayList;
+import java.util.List;
 
 public interface TaskManager {
     long generateId();
@@ -21,7 +20,7 @@ public interface TaskManager {
 
     void addToTasksList(Object obj);
 
-    <T> ArrayList<T> getListOfAllEntities();
+    <T> List<T> getListOfAllEntities();
 
     Object getEntityById(long id);
 
@@ -33,11 +32,11 @@ public interface TaskManager {
 
     int removeEntityFromKanban(Class<?> aClass);
 
-    ArrayList<Object> getAllEntitiesByClass(Class<?> aClass);
+    List<Object> getAllEntitiesByClass(Class<?> aClass);
 
     int removeTaskById(long taskId);
 
-    ArrayList<Subtask> getListOfSubtaskByEpicId(long epicId);
+    List<Subtask> getListOfSubtaskByEpicId(long epicId);
 
     Object updateTask(Object newTask, long taskId);
 
