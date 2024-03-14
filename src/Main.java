@@ -15,43 +15,55 @@ import java.util.List;
 public class Main {
 
     public static void main(String[] args) {
-
         runUserScript2();
     }
 
     private static void runUserScript2() {
+
+        String firstTaskTitle = "Переезд";
+        String firstTaskDescription = "Новая квартира по адресу Москва ул. Дружбы";
+        String secondTaskTitle = "Пример второй задачи";
+        String secondTaskDescription = "Описание второй задачи";
+        String firstEpicTitle = "Написание диплома";
+        String firstEpicDescription = "Для выпуска из университета";
+        String thirdSubTaskTitle = "Чтение литературы";
+        String thirdSubTaskDescription = "Для выпуска из университета";
+        String secondEpicTitle = "Сдача ITELS";
+        String secondEpicDescription = "Для магистратуры";
+        String secondSubTaskTitleForFirstEpic = "Подзадача в рамках эпика";
+        String secondSubTaskDescriptionForFirstEpic = "Пум-Пум";
+
         InMemoryTaskManager taskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
         InMemoryHistoryManager historyManager = (InMemoryHistoryManager) taskManager.getHistoryManager();
 
         System.out.println("Создаем две задачи ...");
 
-        Task task1 = taskManager.createNewTask("Покупка", "продуктов", "NEW");
-        Task task2 = taskManager.createNewTask("Уборка", "В комнате и на столе", "NEW");
+        Task task1 = taskManager.createNewTask(firstTaskTitle, firstTaskDescription, "NEW");
+        Task task2 = taskManager.createNewTask(secondTaskTitle, secondTaskDescription, "NEW");
 
         System.out.println("Создаем эпик с тремя подзадачами ...");
 
-        Epic epic1 = taskManager.createNewEpic("Переезд",
-                "Новая квартира по адресу Москва ул. Дружбы");
+        Epic epic1 = taskManager.createNewEpic(firstEpicTitle, firstEpicDescription);
 
         Subtask subtask1 = taskManager.createNewSubtask(
-                "Собрать коробки",
-                "Вещи + одежду",
+                secondSubTaskTitleForFirstEpic,
+                secondSubTaskDescriptionForFirstEpic,
                 "NEW",
                 epic1.getId());
         Subtask subtask2 = taskManager.createNewSubtask(
-                "Упаковать кошку",
-                "Кошка белая",
+                thirdSubTaskTitle,
+                thirdSubTaskDescription,
                 "NEW",
                 epic1.getId());
         Subtask subtask3 = taskManager.createNewSubtask(
-                "Сказать слова прощания",
-                "Поехали!",
+                thirdSubTaskTitle,
+                thirdSubTaskDescription,
                 "DONE",
                 epic1.getId());
         System.out.println("Создаем один эпик без подзадач ...");
 
-        Epic epic2 = taskManager.createNewEpic("Эпик без подзадач",
-                "просто пустой");
+        Epic epic2 = taskManager.createNewEpic(secondEpicTitle,
+                secondEpicDescription);
 
         System.out.println("Запрос созданных задач несколько раз в разном порядке ...");
 
@@ -97,37 +109,50 @@ public class Main {
     }
 
     private static void runUserScript1() {
+        String firstTaskTitle = "Переезд";
+        String firstTaskDescription = "Новая квартира по адресу Москва ул. Дружбы";
+        String secondTaskTitle = "Пример второй задачи";
+        String secondTaskDescription = "Описание второй задачи";
+        String firstEpicTitle = "Написание диплома";
+        String firstEpicDescription = "Для выпуска из университета";
+        String thirdSubTaskTitle = "Чтение литературы";
+        String thirdSubTaskDescription = "Для выпуска из университета";
+        String secondEpicTitle = "Сдача ITELS";
+        String secondEpicDescription = "Для магистратуры";
+        String secondSubTaskTitleForFirstEpic = "Подзадача в рамках эпика";
+        String secondSubTaskDescriptionForFirstEpic = "Пум-Пум";
+
         InMemoryTaskManager taskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        Task task1 = taskManager.createNewTask("Покупка", "продуктов", "NEW");
-        Task task2 = taskManager.createNewTask("Уборка", "В комнате и на столе", "NEW");
-        Epic epic1 = taskManager.createNewEpic("Переезд",
-                "Новая квартира по адресу Москва ул. Дружбы");
-        Epic epic2 = taskManager.createNewEpic("Важный эпик 2",
-                "Описание эпика 2");
-        Epic epic3 = taskManager.createNewEpic("Важный эпик 3",
-                "Описание эпика 3");
+        Task task1 = taskManager.createNewTask(firstTaskTitle, firstTaskDescription, "NEW");
+        Task task2 = taskManager.createNewTask(secondTaskTitle, secondTaskDescription, "NEW");
+        Epic epic1 = taskManager.createNewEpic(firstEpicTitle,
+                firstEpicDescription);
+        Epic epic2 = taskManager.createNewEpic(secondEpicTitle,
+                secondEpicDescription);
+        Epic epic3 = taskManager.createNewEpic(firstEpicTitle,
+                firstEpicDescription);
         Subtask subtask1 = taskManager.createNewSubtask(
-                "Собрать коробки",
-                "Вещи + одежду",
+                secondSubTaskTitleForFirstEpic,
+                thirdSubTaskDescription,
                 "NEW",
                 epic1.getId());
         Subtask subtask2 = taskManager.createNewSubtask(
-                "Упаковать кошку",
-                "Кошка белая",
+                thirdSubTaskTitle,
+                thirdSubTaskDescription,
                 "NEW",
                 epic1.getId());
         Subtask subtask3 = taskManager.createNewSubtask(
-                "Сказать слова прощания",
-                "Поехали!",
+                secondSubTaskTitleForFirstEpic,
+                secondSubTaskDescriptionForFirstEpic,
                 "DONE",
                 epic1.getId());
         Subtask subtask4 = taskManager.createNewSubtask(
-                "mysubtask4",
-                "subtask4!",
+                thirdSubTaskTitle,
+                thirdSubTaskDescription,
                 "IN_PROGRESS",
                 epic2.getId());
-        Task task3 = taskManager.createNewTask("Программирование",
-                "на java", "NEW");
+        Task task3 = taskManager.createNewTask(firstTaskTitle,
+                firstTaskDescription, "NEW");
 
         printAllList(taskManager);
         System.out.printf("Подзадача до обновления %s\n", subtask4);
