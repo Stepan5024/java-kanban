@@ -111,13 +111,13 @@ public class Main {
     private static void runUserScript1() {
         String firstTaskTitle = "Переезд";
         String firstTaskDescription = "Новая квартира по адресу Москва ул. Дружбы";
-        String secondTaskTitle = "Пример второй задачи";
-        String secondTaskDescription = "Описание второй задачи";
+        String secondTaskTitle = "Тест-лаба";
+        String secondTaskDescription = "Описание тест-лабы";
         String firstEpicTitle = "Написание диплома";
         String firstEpicDescription = "Для выпуска из университета";
         String thirdSubTaskTitle = "Чтение литературы";
         String thirdSubTaskDescription = "Для выпуска из университета";
-        String secondEpicTitle = "Сдача ITELS";
+        String secondEpicTitle = "Сдача IELTS";
         String secondEpicDescription = "Для магистратуры";
         String secondSubTaskTitleForFirstEpic = "Подзадача в рамках эпика";
         String secondSubTaskDescriptionForFirstEpic = "Пум-Пум";
