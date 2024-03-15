@@ -1,24 +1,29 @@
 package model;
 
 import controller.managers.InMemoryTaskManager;
-import model.Epic;
-import model.Subtask;
-import model.TaskStatus;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class SubtaskTest {
+    static String firstEpicTitle;
+    static String firstEpicDescription;
     static Epic epic;
     long expectedIdEpic;
     static Subtask subtask;
 
+    @BeforeAll
+    static void initAllEntity() {
+        firstEpicTitle = "Написание диплома";
+        firstEpicDescription = "Для выпуска из университета";
+    }
+
     @BeforeEach
     void init() {
-        epic = new Epic("Epic Title", "Epic description", TaskStatus.NEW);
+        epic = new Epic(firstEpicTitle, firstEpicDescription, TaskStatus.NEW);
         expectedIdEpic = InMemoryTaskManager.getId() - 1;
         subtask = new Subtask("Subtask Title", "Subtask description", TaskStatus.NEW, epic.getId());
-
     }
 
     @Test

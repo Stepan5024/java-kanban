@@ -3,8 +3,6 @@ package manager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import manager.Managers;
-
 class ManagersTest {
 
     @Test

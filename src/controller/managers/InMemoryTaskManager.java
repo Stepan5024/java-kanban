@@ -13,11 +13,16 @@ import java.util.List;
 public class InMemoryTaskManager implements TaskManager {
 
     private static long taskId;
-    private final ArrayList<Object> listOfAllTasks = new ArrayList<>();
+    private final List<Object> listOfAllTasks = new ArrayList<>();
+
     private final HistoryManager historyManager;
 
     public InMemoryTaskManager(HistoryManager historyManager) {
         this.historyManager = historyManager;
+    }
+
+    public HistoryManager getHistoryManager() {
+        return historyManager;
     }
 
     @Override
@@ -109,7 +114,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public ArrayList<Object> getListOfAllEntities() {
+    public List<Object> getListOfAllEntities() {
         return listOfAllTasks;
     }
 
@@ -133,17 +138,15 @@ public class InMemoryTaskManager implements TaskManager {
     public Task getTaskById(long id) {
         Object task = getEntityById(id);
 
-
         if (task.getClass().equals(Task.class)) {
             historyManager.add((Task) task);
         } else {
-            System.out.printf("Запрашиваемый id = %d не принадлежит Task, а является %s", id, task.getClass());
+            System.out.printf("Запрашиваемый id = %d не принадлежит Task, а является %s\n", id, task.getClass());
             return null;
         }
 
         return (Task) task;
     }
-
 
     @Override
     public Epic getEpicById(long id) {
@@ -172,7 +175,6 @@ public class InMemoryTaskManager implements TaskManager {
         return (Subtask) task;
     }
 
-
     @Override
     public int removeEntityFromKanban(Class<?> aClass) {
         // ТЗ пункт 2.B Удаление всех эпиков, подзадач, тасков
@@ -188,9 +190,9 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public ArrayList<Object> getAllEntitiesByClass(Class<?> aClass) {
+    public List<Object> getAllEntitiesByClass(Class<?> aClass) {
         // ТЗ 2.A Получение списка всех задач, подзадач, эпиков
-        ArrayList<Object> entities = new ArrayList<>();
+        List<Object> entities = new ArrayList<>();
         for (Object obj : getListOfAllEntities()) {
             if (obj.getClass().equals(aClass)) {
                 entities.add(obj);
@@ -217,6 +219,7 @@ public class InMemoryTaskManager implements TaskManager {
         int countDeletedItems = tasksToRemove.size();
 
         for (Object task : tasksToRemove) {
+            historyManager.remove(((Task) task).getId());
             listOfAllTasks.remove(task);
         }
 
@@ -225,10 +228,10 @@ public class InMemoryTaskManager implements TaskManager {
 
 
     @Override
-    public ArrayList<Subtask> getListOfSubtaskByEpicId(long epicId) {
+    public List<Subtask> getListOfSubtaskByEpicId(long epicId) {
         // ТЗ пункт 3.А Получение списка всех подзадач определённого эпика.
 
-        ArrayList<Subtask> listOfSubtasks = new ArrayList<>();
+        List<Subtask> listOfSubtasks = new ArrayList<>();
 
         for (Object subtask : getAllEntitiesByClass(Subtask.class)) {
 
@@ -292,7 +295,7 @@ public class InMemoryTaskManager implements TaskManager {
             return listOfAllTasks.get(index);
         }
         System.out.printf("Переданный объект %s должен иметь тот же id %d что и назначаемый id %d\n",
-        newTask.toString(), ((Task) newTask).getId(), taskId);
+                newTask.toString(), ((Task) newTask).getId(), taskId);
         return null;
     }
 
