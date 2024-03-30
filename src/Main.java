@@ -73,10 +73,10 @@ public class Main {
         System.out.printf("Запрос подзадачи с id = %d\n", subtask1.getId());
         manager.getSubtaskById(subtask1.getId());
 
-        System.out.printf("Запрос задачи с id = %d\n\n", task2.getId());
+        System.out.printf("Запрос задачи с id = %d\n", task2.getId());
         manager.getTaskById(task2.getId());
 
-        System.out.printf("Запрос задачи c id = %d\n\n", task1Id);
+        System.out.printf("Запрос задачи c id = %d\n", task1Id);
         manager.getTaskById(task1Id);
 
         printAllTasks(manager);
@@ -105,7 +105,7 @@ public class Main {
         String firstEpicDescription = "Для выпуска из университета";
         String thirdSubTaskTitle = "Чтение литературы";
         String thirdSubTaskDescription = "Для выпуска из университета";
-        String secondEpicTitle = "Сдача ITELS";
+        String secondEpicTitle = "Сдача IELTS";
         String secondEpicDescription = "Для магистратуры";
         String secondSubTaskTitleForFirstEpic = "Подзадача в рамках эпика";
         String secondSubTaskDescriptionForFirstEpic = "Пум-Пум";
@@ -150,7 +150,7 @@ public class Main {
         taskManager.getTaskById(task1Id);
         printHistory(historyManager);
 
-        System.out.printf("Запрос эпика с id = %d\n\n", epic1.getId());
+        System.out.printf("Запрос эпика с id = %d\n", epic1.getId());
         taskManager.getEpicById(epic1.getId());
         printHistory(historyManager);
 
