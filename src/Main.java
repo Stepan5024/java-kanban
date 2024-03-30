@@ -34,7 +34,9 @@ public class Main {
         String secondSubTaskDescriptionForFirstEpic = "Пум-Пум";
 
         InMemoryTaskManager taskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        InMemoryHistoryManager historyManager = (InMemoryHistoryManager) taskManager.getHistoryManager();
+        InMemoryHistoryManager historyManager = (InMemoryHistoryManager) taskManager.getHistoryManager();  System.out.println("Как их все запомнить?!".lastIndexOf("?"));
+
+
 
         System.out.println("Создаем две задачи ...");
 
