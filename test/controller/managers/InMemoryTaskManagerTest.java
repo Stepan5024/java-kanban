@@ -76,7 +76,6 @@ class InMemoryTaskManagerTest {
                 firstEpicDescription);
         boolean result = memoryTaskManagerTest.checkIsEpic(epic1.getId());
         Assertions.assertTrue(result);
-
     }
 
     @Test
