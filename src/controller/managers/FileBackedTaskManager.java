@@ -61,7 +61,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
             if (lines[i].trim().isEmpty()) {
                 break;
             }
-            System.out.printf("lines[i] %s", lines[i]);
+
             Task task = fromString(lines[i]);
             manager.addToTasksList(task);
             if (task instanceof Subtask) {
@@ -140,9 +140,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
 
     @Override
     public void actualizationEpicStatus(Subtask subtask) {
-       super.actualizationEpicStatus(subtask);
-       save();
+        super.actualizationEpicStatus(subtask);
+        save();
     }
+
     @Override
     public void addToTasksList(Object obj) {
         super.addToTasksList(obj);

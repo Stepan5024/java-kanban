@@ -1,5 +1,6 @@
 import controller.history.HistoryManager;
 import controller.history.InMemoryHistoryManager;
+import controller.managers.FileBackedTaskManager;
 import controller.managers.InMemoryTaskManager;
 import controller.managers.TaskManager;
 import model.Epic;
@@ -9,13 +10,56 @@ import model.TaskStatus;
 
 import manager.Managers;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
 
     public static void main(String[] args) {
-        runUserScript2();
+        try {
+            runUserScript3();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static void runUserScript3() throws IOException {
+        // Текстовые метки
+        String taskLabel1 = "Задача 1";
+        String taskDescription1 = "Описание задачи 1";
+        String taskLabel2 = "Задача 2";
+        String taskDescription2 = "Описание задачи 2";
+        String epicLabel1 = "Эпик 1";
+        String epicDescription1 = "Описание эпика 1";
+        String subtaskLabel1 = "Подзадача 1 эпика 1";
+        String subtaskDescription1 = "Описание подзадачи 1";
+        String subtaskLabel2 = "Подзадача 2 эпика 1";
+        String subtaskDescription2 = "Описание подзадачи 2";
+
+        // Путь к файлу для сохранения и загрузки менеджера задач
+        File file = File.createTempFile("FileBackedTaskManager", ".csv");
+
+        // Создание и инициализация менеджера задач
+        FileBackedTaskManager manager = new FileBackedTaskManager(new InMemoryHistoryManager(), file.getAbsolutePath());
+
+        // Создание задач, эпиков и подзадач с использованием текстовых меток
+        Task task1 = manager.createNewTask(taskLabel1, taskDescription1, TaskStatus.NEW.name());
+        Task task2 = manager.createNewTask(taskLabel2, taskDescription2, TaskStatus.DONE.name());
+        Epic epic1 = manager.createNewEpic(epicLabel1, epicDescription1);
+        Subtask subtask1 = manager.createNewSubtask(subtaskLabel1, subtaskDescription1, TaskStatus.NEW.name(), epic1.getId());
+        Subtask subtask2 = manager.createNewSubtask(subtaskLabel2, subtaskDescription2, TaskStatus.DONE.name(), epic1.getId());
+
+        // Создание нового менеджера из этого же файла
+        FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(file, new InMemoryHistoryManager());
+
+        // Проверка, что все задачи, эпики и подзадачи загрузились корректно
+        System.out.println("Проверка загруженных данных:");
+        printAllTasks(loadedManager);
+
+        // Удаление временного файла
+        file.deleteOnExit();
     }
 
     private static void runUserScript2() {
