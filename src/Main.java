@@ -51,11 +51,41 @@ public class Main {
         Subtask subtask1 = manager.createNewSubtask(subtaskLabel1, subtaskDescription1, TaskStatus.NEW.name(), epic1.getId());
         Subtask subtask2 = manager.createNewSubtask(subtaskLabel2, subtaskDescription2, TaskStatus.DONE.name(), epic1.getId());
 
+        InMemoryHistoryManager historyManager = (InMemoryHistoryManager) manager.getHistoryManager();
+
+        // Запрос созданных задач в разном порядке
+        System.out.printf("Запрос задачи c id = %d\n\n", task1.getId());
+        manager.getTaskById(task1.getId());
+
+        System.out.printf("Запрос эпика с id = %d\n\n", epic1.getId());
+        manager.getEpicById(epic1.getId());
+
+        System.out.printf("Запрос подзадачи с id = %d\n\n", subtask2.getId());
+        manager.getSubtaskById(subtask2.getId());
+
+
+        System.out.printf("Запрос задачи c id = %d\n\n", task1.getId());
+        manager.getTaskById(task1.getId());
+
+        System.out.printf("Запрос подзадачи с id = %d\n\n", subtask1.getId());
+        manager.getSubtaskById(subtask1.getId());
+
+        System.out.printf("Запрос задачи с id = %d\n\n", task2.getId());
+        manager.getTaskById(task2.getId());
+
+        System.out.printf("Запрос задачи c id = %d\n\n", task1.getId());
+        manager.getTaskById(task1.getId());
+
+        printAllTasks(manager);
+        System.out.printf("Создано Задач - %d\n", manager.getAllEntitiesByClass(Task.class).size());
+        System.out.printf("Создано Подзадач - %d\n", manager.getAllEntitiesByClass(Subtask.class).size());
+        System.out.printf("Создано Эпиков - %d\n", manager.getAllEntitiesByClass(Epic.class).size());
+        printHistory(historyManager);
         // Создание нового менеджера из этого же файла
-        FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(file, new InMemoryHistoryManager());
+        FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(file, historyManager);
 
         // Проверка, что все задачи, эпики и подзадачи загрузились корректно
-        System.out.println("Проверка загруженных данных:");
+        System.out.println("\nПроверка загруженных данных:");
         printAllTasks(loadedManager);
 
         // Удаление временного файла
@@ -284,26 +314,31 @@ public class Main {
 
     private static void printAllTasks(TaskManager manager) {
         System.out.println();
-        System.out.println("Задачи:");
-        for (Object task : manager.getAllEntitiesByClass(Task.class)) {
+        List<Object> listOfTask = manager.getAllEntitiesByClass(Task.class);
+        System.out.printf("Задачи(%d):\n", listOfTask.size());
+        for (Object task : listOfTask) {
             System.out.println(task);
         }
-        System.out.println("Эпики:");
-        for (Object epic : manager.getAllEntitiesByClass(Epic.class)) {
+
+        List<Object> listOfEpic = manager.getAllEntitiesByClass(Epic.class);
+        System.out.printf("Эпики(%d):\n", listOfEpic.size());
+        for (Object epic : listOfEpic) {
             System.out.println(epic);
 
             for (Task task : manager.getListOfSubtaskByEpicId(((Epic) epic).getId())) {
                 System.out.println("--> " + task);
             }
         }
-        System.out.println("Подзадачи:");
-        for (Object subtask : manager.getAllEntitiesByClass(Subtask.class)) {
+        List<Object> listOfSubtask = manager.getAllEntitiesByClass(Subtask.class);
+        System.out.printf("Подзадачи(%d):\n", listOfSubtask.size());
+        for (Object subtask : listOfSubtask) {
             System.out.println(subtask);
         }
-        // Используйте существующий объект InMemoryHistoryManager через TaskManager
+
         HistoryManager historyManager = manager.getHistoryManager();
-        System.out.println("История:");
-        for (Task task : historyManager.getHistory()) {
+        List<Task> listOfHistory = historyManager.getHistory();
+        System.out.printf("История(%d):\n", listOfHistory.size());
+        for (Task task : listOfHistory) {
             System.out.println(task);
         }
         System.out.println();
