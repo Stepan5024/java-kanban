@@ -36,8 +36,10 @@ public class FileBackedTaskManagerTest {
         secondTaskDescription = "Описание второй задачи";
         firstEpicTitle = "Написание диплома";
         firstEpicDescription = "Для выпуска из университета";
+        secondSubTaskTitleForFirstEpic = "Заголовок 2 подзадачи";
+        secondSubTaskDescriptionForFirstEpic = "Описание 2 подзадачи";
         thirdSubTaskTitle = "Чтение литературы";
-        thirdSubTaskDescription = "Для выпуска из университета";
+        thirdSubTaskDescription = "Из рекомендованной руководителем";
     }
 
     @Test

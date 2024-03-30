@@ -45,36 +45,39 @@ public class Main {
         FileBackedTaskManager manager = new FileBackedTaskManager(new InMemoryHistoryManager(), file.getAbsolutePath());
 
         // Создание задач, эпиков и подзадач с использованием текстовых меток
-        Task task1 = manager.createNewTask(taskLabel1, taskDescription1, TaskStatus.NEW.name());
-        Task task2 = manager.createNewTask(taskLabel2, taskDescription2, TaskStatus.DONE.name());
+        String taskStatusNew = TaskStatus.NEW.name();
+        String taskStatusDone = TaskStatus.DONE.name();
+        Task task1 = manager.createNewTask(taskLabel1, taskDescription1, taskStatusNew);
+        Task task2 = manager.createNewTask(taskLabel2, taskDescription2, taskStatusDone);
         Epic epic1 = manager.createNewEpic(epicLabel1, epicDescription1);
-        Subtask subtask1 = manager.createNewSubtask(subtaskLabel1, subtaskDescription1, TaskStatus.NEW.name(), epic1.getId());
-        Subtask subtask2 = manager.createNewSubtask(subtaskLabel2, subtaskDescription2, TaskStatus.DONE.name(), epic1.getId());
+        Subtask subtask1 = manager.createNewSubtask(subtaskLabel1, subtaskDescription1, taskStatusNew, epic1.getId());
+        Subtask subtask2 = manager.createNewSubtask(subtaskLabel2, subtaskDescription2, taskStatusDone, epic1.getId());
 
         InMemoryHistoryManager historyManager = (InMemoryHistoryManager) manager.getHistoryManager();
 
         // Запрос созданных задач в разном порядке
-        System.out.printf("Запрос задачи c id = %d\n\n", task1.getId());
-        manager.getTaskById(task1.getId());
+        long task1Id = task1.getId();
+        System.out.printf("Запрос задачи c id = %d\n", task1Id);
+        manager.getTaskById(task1Id);
 
-        System.out.printf("Запрос эпика с id = %d\n\n", epic1.getId());
+        System.out.printf("Запрос эпика с id = %d\n", epic1.getId());
         manager.getEpicById(epic1.getId());
 
-        System.out.printf("Запрос подзадачи с id = %d\n\n", subtask2.getId());
+        System.out.printf("Запрос подзадачи с id = %d\n", subtask2.getId());
         manager.getSubtaskById(subtask2.getId());
 
 
-        System.out.printf("Запрос задачи c id = %d\n\n", task1.getId());
-        manager.getTaskById(task1.getId());
+        System.out.printf("Запрос задачи c id = %d\n", task1Id);
+        manager.getTaskById(task1Id);
 
-        System.out.printf("Запрос подзадачи с id = %d\n\n", subtask1.getId());
+        System.out.printf("Запрос подзадачи с id = %d\n", subtask1.getId());
         manager.getSubtaskById(subtask1.getId());
 
         System.out.printf("Запрос задачи с id = %d\n\n", task2.getId());
         manager.getTaskById(task2.getId());
 
-        System.out.printf("Запрос задачи c id = %d\n\n", task1.getId());
-        manager.getTaskById(task1.getId());
+        System.out.printf("Запрос задачи c id = %d\n\n", task1Id);
+        manager.getTaskById(task1Id);
 
         printAllTasks(manager);
         System.out.printf("Создано Задач - %d\n", manager.getAllEntitiesByClass(Task.class).size());
@@ -141,38 +144,38 @@ public class Main {
 
         System.out.println("Запрос созданных задач несколько раз в разном порядке ...");
 
-
+        long task1Id = task1.getId();
         // Запрос созданных задач в разном порядке
-        System.out.printf("Запрос задачи c id = %d\n\n", task1.getId());
-        taskManager.getTaskById(task1.getId());
+        System.out.printf("Запрос задачи c id = %d\n", task1Id);
+        taskManager.getTaskById(task1Id);
         printHistory(historyManager);
 
         System.out.printf("Запрос эпика с id = %d\n\n", epic1.getId());
         taskManager.getEpicById(epic1.getId());
         printHistory(historyManager);
 
-        System.out.printf("Запрос подзадачи с id = %d\n\n", subtask3.getId());
+        System.out.printf("Запрос подзадачи с id = %d\n", subtask3.getId());
         taskManager.getSubtaskById(subtask3.getId());
         printHistory(historyManager);
 
-        System.out.printf("Запрос задачи c id = %d\n\n", task1.getId());
-        taskManager.getTaskById(task1.getId());
+        System.out.printf("Запрос задачи c id = %d\n", task1Id);
+        taskManager.getTaskById(task1Id);
         printHistory(historyManager);
 
-        System.out.printf("Запрос подзадачи с id = %d\n\n", subtask1.getId());
+        System.out.printf("Запрос подзадачи с id = %d\n", subtask1.getId());
         taskManager.getSubtaskById(subtask1.getId());
         printHistory(historyManager);
 
-        System.out.printf("Запрос задачи с id = %d\n\n", task2.getId());
+        System.out.printf("Запрос задачи с id = %d\n", task2.getId());
         taskManager.getTaskById(task2.getId());
         printHistory(historyManager);
 
-        System.out.printf("Запрос задачи c id = %d\n\n", task1.getId());
-        taskManager.getTaskById(task1.getId());
+        System.out.printf("Запрос задачи c id = %d\n", task1Id);
+        taskManager.getTaskById(task1Id);
         printHistory(historyManager);
 
-        System.out.printf("Удаляю задачу с Id = %d, которая есть в истории ...\n\n", task1.getId());
-        taskManager.removeTaskById(task1.getId());
+        System.out.printf("Удаляю задачу с Id = %d, которая есть в истории ...\n\n", task1Id);
+        taskManager.removeTaskById(task1Id);
         printHistory(historyManager);
 
         System.out.printf("\nУдаляю эпик с Id = %d, который есть в истории и имеет три подзадачи...\n",
@@ -201,6 +204,9 @@ public class Main {
         Task task2 = taskManager.createNewTask(secondTaskTitle, secondTaskDescription, "NEW");
         Epic epic1 = taskManager.createNewEpic(firstEpicTitle,
                 firstEpicDescription);
+        long epic1Id = epic1.getId();
+        long task2Id = task2.getId();
+
         Epic epic2 = taskManager.createNewEpic(secondEpicTitle,
                 secondEpicDescription);
         Epic epic3 = taskManager.createNewEpic(firstEpicTitle,
@@ -209,17 +215,17 @@ public class Main {
                 secondSubTaskTitleForFirstEpic,
                 thirdSubTaskDescription,
                 "NEW",
-                epic1.getId());
+                epic1Id);
         Subtask subtask2 = taskManager.createNewSubtask(
                 thirdSubTaskTitle,
                 thirdSubTaskDescription,
                 "NEW",
-                epic1.getId());
+                epic1Id);
         Subtask subtask3 = taskManager.createNewSubtask(
                 secondSubTaskTitleForFirstEpic,
                 secondSubTaskDescriptionForFirstEpic,
                 "DONE",
-                epic1.getId());
+                epic1Id);
         Subtask subtask4 = taskManager.createNewSubtask(
                 thirdSubTaskTitle,
                 thirdSubTaskDescription,
@@ -227,6 +233,7 @@ public class Main {
                 epic2.getId());
         Task task3 = taskManager.createNewTask(firstTaskTitle,
                 firstTaskDescription, "NEW");
+        long subtask4Id = subtask4.getId();
 
         printAllList(taskManager);
         System.out.printf("Подзадача до обновления %s\n", subtask4);
@@ -235,16 +242,16 @@ public class Main {
                 "newDescription",
                 TaskStatus.valueOf("DONE"),
                 subtask4.getEpicId(),
-                subtask4.getId()), subtask4.getId());
+                subtask4Id), subtask4Id);
 
         System.out.printf("Подзадача после обновления %s\n", subtask4);
 
         taskManager.getTaskById(task1.getId());
         taskManager.getEpicById(epic1.getId());
         taskManager.getEpicById(epic2.getId());
-        taskManager.getSubtaskById(subtask4.getId());
+        taskManager.getSubtaskById(subtask4Id);
         taskManager.getSubtaskById(subtask2.getId());
-        taskManager.getTaskById(task2.getId());
+        taskManager.getTaskById(task2Id);
         taskManager.getEpicById(epic1.getId());
 
         InMemoryHistoryManager historyManager = (InMemoryHistoryManager) taskManager.getHistoryManager();
@@ -265,10 +272,10 @@ public class Main {
         }
         printAllList(taskManager);
 
-        System.out.printf("Удаляю эпик id = %d\n", epic1.getId());
+        System.out.printf("Удаляю эпик id = %d\n", epic1Id);
         int result = taskManager.removeTaskById(epic1.getId());
         if (result > 0) {
-            System.out.printf("Эпик id = %d удален с канбан доски\n", epic1.getId());
+            System.out.printf("Эпик id = %d удален с канбан доски\n", epic1Id);
         }
         printAllList(taskManager);
 
@@ -276,7 +283,7 @@ public class Main {
         task2 = (Task) taskManager.updateTask(new Task("newTitle after updating",
                 "newDescription",
                 TaskStatus.valueOf("DONE"),
-                task2.getId()), task2.getId());
+                task2Id), task2Id);
         System.out.printf("Задача после обновления %s\n", task2);
         printAllList(taskManager);
 

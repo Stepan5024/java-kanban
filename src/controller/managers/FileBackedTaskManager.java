@@ -16,7 +16,7 @@ import static java.util.Arrays.*;
 
 public class FileBackedTaskManager extends InMemoryTaskManager implements TaskManager {
 
-    private String filePath;
+    private final String filePath;
 
     public FileBackedTaskManager(HistoryManager historyManager, String filePath) {
         super(historyManager);
