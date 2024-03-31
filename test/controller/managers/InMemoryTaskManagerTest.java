@@ -1,14 +1,13 @@
 package controller.managers;
 
 import controller.history.InMemoryHistoryManager;
+import manager.Managers;
 import model.Epic;
 import model.Subtask;
 import model.Task;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-
-import manager.Managers;
 
 import java.util.HashMap;
 import java.util.List;
@@ -76,7 +75,6 @@ class InMemoryTaskManagerTest {
                 firstEpicDescription);
         boolean result = memoryTaskManagerTest.checkIsEpic(epic1.getId());
         Assertions.assertTrue(result);
-
     }
 
     @Test
@@ -249,4 +247,5 @@ class InMemoryTaskManagerTest {
         assertFalse(historyManager.getHistory().contains(thirdTask), "Третья задача не должна была остаться");
         assertTrue(historyManager.getHistory().contains(fourthTask), "Четвертая задача должна была остаться");
     }
+
 }
