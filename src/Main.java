@@ -13,17 +13,62 @@ import manager.Managers;
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
 
-    public static void main(String[] args) {
-        try {
-            runUserScript3();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public static void main(String[] args) throws IOException {
+        runUserScript4();
+    }
+
+
+    private static void runUserScript4() throws IOException {
+        // Текстовые метки и даты для задач
+        String taskLabel1 = "Задача 1";
+        String taskDescription1 = "Описание задачи 1";
+        LocalDateTime startTime1 = LocalDateTime.now();
+        Duration duration1 = Duration.ofHours(1);
+
+        String taskLabel2 = "Задача 2";
+        String taskDescription2 = "Описание задачи 2";
+        LocalDateTime startTime2 = LocalDateTime.now().plusHours(1);
+        Duration duration2 = Duration.ofHours(2);
+
+        String epicLabel1 = "Эпик 1";
+        String epicDescription1 = "Описание эпика 1";
+
+        String subtaskLabel1 = "Подзадача 1 эпика 1";
+        String subtaskDescription1 = "Описание подзадачи 1";
+        LocalDateTime startTime3 = LocalDateTime.now().plusHours(2);
+        Duration duration3 = Duration.ofHours(1);
+
+        String subtaskLabel2 = "Подзадача 2 эпика 1";
+        String subtaskDescription2 = "Описание подзадачи 2";
+        LocalDateTime startTime4 = LocalDateTime.now().plusHours(3);
+        Duration duration4 = Duration.ofHours(1);
+
+        // Путь к файлу для сохранения и загрузки менеджера задач
+        File file = File.createTempFile("FileBackedTaskManager", ".csv");
+        // Создание и инициализация менеджера задач
+        FileBackedTaskManager manager = new FileBackedTaskManager(new InMemoryHistoryManager(), file.getAbsolutePath());
+
+        // Создание задач, эпиков и подзадач с использованием текстовых меток и дат
+        Task task1 = manager.createNewTask(taskLabel1, taskDescription1, TaskStatus.NEW.name(), startTime1, duration1);
+        Task task2 = manager.createNewTask(taskLabel2, taskDescription2, TaskStatus.DONE.name(), startTime2, duration2);
+        Task task3 = manager.createNewTask(taskLabel2, taskDescription2, TaskStatus.DONE.name(), null, duration2);
+        Task task4 = manager.createNewTask(taskLabel2, taskDescription2, TaskStatus.DONE.name(), startTime2, null);
+
+        Epic epic1 = manager.createNewEpic(epicLabel1, epicDescription1);
+        Subtask subtask1 = manager.createNewSubtask(subtaskLabel1, subtaskDescription1, TaskStatus.NEW.name(), epic1.getId(), startTime3, duration3);
+        Subtask subtask2 = manager.createNewSubtask(subtaskLabel2, subtaskDescription2, TaskStatus.DONE.name(), epic1.getId(), startTime4, duration4);
+
+        printAllTasks(manager);
+
+        System.out.println("Приоритетные задачи:");
+        manager.getPrioritizedTasks().forEach(task -> System.out.println(task.getTitle() + " - " + task.getStartTime()));
+
     }
 
     private static void runUserScript3() throws IOException {
@@ -114,8 +159,8 @@ public class Main {
         String secondSubTaskDescriptionForFirstEpic = "Пум-Пум";
 
         InMemoryTaskManager taskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        InMemoryHistoryManager historyManager = (InMemoryHistoryManager) taskManager.getHistoryManager();  System.out.println("Как их все запомнить?!".lastIndexOf("?"));
-
+        InMemoryHistoryManager historyManager = (InMemoryHistoryManager) taskManager.getHistoryManager();
+        System.out.println("Как их все запомнить?!".lastIndexOf("?"));
 
 
         System.out.println("Создаем две задачи ...");

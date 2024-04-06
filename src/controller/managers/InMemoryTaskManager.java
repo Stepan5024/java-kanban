@@ -8,9 +8,7 @@ import model.TaskStatus;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 
 public class InMemoryTaskManager implements TaskManager {
@@ -28,6 +26,8 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager;
     }
 
+    private final Set<Task> prioritizedTasks = new TreeSet<>(new TaskStartTimeComparator());
+
     @Override
     public long generateId() {
         return taskId++;
@@ -37,10 +37,17 @@ public class InMemoryTaskManager implements TaskManager {
         return taskId;
     }
 
+    public Set<Task> getPrioritizedTasks() {
+        return prioritizedTasks;
+    }
+
     @Override
     public Task createNewTask(String title, String description, String status,
                               LocalDateTime startTime, Duration duration) {
         // ТЗ пункт 2. D Создание Задачи
+        if (duration == null) {
+            duration = Duration.ZERO;
+        }
         Task task = new Task(title, description,
                 TaskStatus.valueOf(status), startTime, duration);
         addToTasksList(task);
@@ -89,6 +96,11 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void addToTasksList(Object obj) {
+        Task task = (Task) obj;
+        if (task.getStartTime() != null) {
+            prioritizedTasks.add(task);
+        }
+
         listOfAllTasks.add(obj);
     }
 
@@ -96,10 +108,15 @@ public class InMemoryTaskManager implements TaskManager {
     public Subtask createNewSubtask(String title, String description, String status, long epicId,
                                     LocalDateTime startTime, Duration duration) {
         // ТЗ пункт 2. D Создание Подзадачи
+        if (duration == null) {
+            duration = Duration.ZERO;
+        }
         if (checkIsEpic(epicId)) {
             Subtask subtask = new Subtask(title, description, TaskStatus.valueOf(status), epicId, startTime, duration);
             addToTasksList(subtask);
             actualizationEpicStatus(subtask);
+            updateEpicTimeAndDuration(epicId);
+
             return subtask;
         } else {
             System.out.printf("Нельзя создать подзадачу с несуществующим Id = %d эпика. " +
@@ -144,9 +161,9 @@ public class InMemoryTaskManager implements TaskManager {
 
         Epic epic = getEpicById(epicId);
         if (epic != null) {
-            // Здесь должна быть логика для установки вычисленных значений startTime и duration для эпика
-            // Эпик может иметь методы для обновления этих значений, или вы можете обновить их напрямую,
-            // если эпик будет хранить эти значения как часть своего состояния.
+            epic.setStartTime(startTime);
+            epic.setEndTime(endTime);
+            epic.setDuration(duration);
         }
     }
 
@@ -219,7 +236,9 @@ public class InMemoryTaskManager implements TaskManager {
 
         for (Object task : getAllEntitiesByClass(aClass)) {
             if (aClass.isInstance(task)) {
+
                 countDeletedItems += removeTaskById(((Task) task).getId());
+
             }
         }
 
@@ -250,14 +269,24 @@ public class InMemoryTaskManager implements TaskManager {
             if (obj.getClass().equals(Epic.class)) {
                 tasksToRemove.addAll(getListOfSubtaskByEpicId(taskId));
             }
-            changeEpicStatusAfterChangeSubtask(obj);
+
         }
 
         int countDeletedItems = tasksToRemove.size();
 
         for (Object task : tasksToRemove) {
+            /*Long epicId = null;
+            if (task.getClass().equals(Subtask.class) && checkIsEpic(((Subtask) task).getEpicId())) {
+                epicId = ((Subtask) task).getEpicId();
+            }*/
+
             historyManager.remove(((Task) task).getId());
             listOfAllTasks.remove(task);
+            changeEpicStatusAfterChangeSubtask(task);
+
+            /*if (epicId != null) {
+                updateEpicTimeAndDuration(epicId);
+            }*/
         }
 
         return countDeletedItems;
@@ -329,6 +358,7 @@ public class InMemoryTaskManager implements TaskManager {
             listOfAllTasks.add(index, newTask);
 
             changeEpicStatusAfterChangeSubtask(newTask);
+
             return listOfAllTasks.get(index);
         }
         System.out.printf("Переданный объект %s должен иметь тот же id %d что и назначаемый id %d\n",
@@ -339,6 +369,7 @@ public class InMemoryTaskManager implements TaskManager {
     private void changeEpicStatusAfterChangeSubtask(Object newTask) {
         if (newTask.getClass().equals(Subtask.class) && checkIsEpic(((Subtask) newTask).getEpicId())) {
             actualizationEpicStatus((Subtask) newTask);
+            updateEpicTimeAndDuration(((Subtask) newTask).getEpicId());
         }
     }
 }

@@ -46,7 +46,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         String type = task instanceof Epic ? "EPIC" : task instanceof Subtask ? "SUBTASK" : "TASK";
         String epicId = task instanceof Subtask ? String.valueOf(((Subtask) task).getEpicId()) : "";
         String startTimeStr = task.getStartTime() == null ? "null" : task.getStartTime().toString();
-        String durationStr = task.getDuration().equals(Duration.ZERO) ? "PT0S" : task.getDuration().toString();
+        String durationStr = task.getDuration() == null || task.getDuration().equals(Duration.ZERO) ? "PT0S" : task.getDuration().toString();
         return String.format("%d,%s,%s,%s,%s,%s,%s,%s", task.getId(), type, task.getTitle(),
                 task.getStatus(), task.getDescription(), epicId, startTimeStr, durationStr);
     }
