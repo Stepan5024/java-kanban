@@ -269,14 +269,12 @@ public class InMemoryTaskManager implements TaskManager {
     public int removeEntityFromKanban(Class<?> aClass) {
         // ТЗ пункт 2.B Удаление всех эпиков, подзадач, тасков
         List<Long> idsToRemove = getAllEntitiesByClass(aClass).stream()
-                .filter(aClass::isInstance)
+                .filter(task -> task.getClass().equals(aClass))
                 .map(aClass::cast)
                 .map(obj -> ((Task) obj).getId())
                 .collect(Collectors.toList()); // Собираем идентификаторы для удаления
 
         idsToRemove.forEach(this::removeTaskById);
-
-
         return idsToRemove.size();
     }
 

@@ -273,6 +273,38 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         assertEquals(1, tasks.size(), "Неверное количество задач.");
         assertEquals(task, tasks.get(0), "Задачи не совпадают.");
     }
+    @Test
+    void shouldNotAddTaskWithOverlap() {
+
+        LocalDateTime start = LocalDateTime.now();
+        Duration duration = Duration.ofHours(2);
+
+        // Создание и добавление задачи
+        Task existingTask = taskManager.createNewTask(firstTaskTitle, firstTaskDescription, "NEW", start, duration);
+        Assertions.assertNotNull(existingTask, "Существующая задача должна быть успешно добавлена.");
+
+        // Попытка добавить новую задачу, пересекающуюся по времени с уже существующей
+        Task newTask = taskManager.createNewTask(secondTaskTitle, secondTaskDescription, "NEW", start.plusHours(1), duration);
+        assertNull(newTask, "Новая задача не должна быть добавлена из-за пересечения времени выполнения.");
+    }
+
+
+    @Test
+    void shouldAddTaskWithoutOverlap() {
+
+        LocalDateTime start = LocalDateTime.now();
+        Duration duration = Duration.ofHours(2);
+
+        // Создание и добавление задачи, которая не должна пересекаться по времени с другими
+        Task firstTask = taskManager.createNewTask(firstTaskTitle, firstTaskDescription, "NEW",
+                start.minusHours(4), duration);
+        Assertions.assertNotNull(firstTask, "Задача должна быть успешно добавлена.");
+
+        // Попытка добавить еще одну задачу, которая также не пересекается по времени
+        Task secondTask = taskManager.createNewTask(secondTaskTitle, secondTaskDescription, "NEW",
+                start.plusHours(4), duration);
+        Assertions.assertNotNull(secondTask, "Вторая задача должна быть успешно добавлена.");
+    }
 
     @Test
     void checkThatSubtaskDoNotAddedHowOwnEpic() {
@@ -404,6 +436,27 @@ public abstract class TaskManagerTest<T extends TaskManager> {
                 "Неудаленная подзадача должна присутствовать в списке подзадач эпика.");
 
     }
+
+    @Test
+    void shouldRemoveAllTasksAndSaveChanges() {
+        // Инициализация FileBackedTaskManager с временным файлом
+
+        // Добавление нескольких задач разных типов
+        taskManager.createNewTask(firstEpicTitle, firstEpicDescription, TaskStatus.NEW.name(),
+                LocalDateTime.now(), Duration.ofHours(1));
+        Epic epic = taskManager.createNewEpic(firstEpicTitle, firstEpicDescription);
+        taskManager.createNewSubtask(secondTaskTitle, secondTaskDescription,
+                TaskStatus.NEW.name(), epic.getId(), LocalDateTime.now().plusHours(2), Duration.ofHours(1));
+
+        // Удаление всех задач
+        int deletedCount = taskManager.removeEntityFromKanban(Task.class);
+        Assertions.assertEquals(1, deletedCount, "Должна быть удалена одна задача.");
+
+        Assertions.assertTrue(taskManager.getListOfAllEntities().stream()
+                        .noneMatch(task -> task.getClass().equals(Task.class)),
+                "В списке не должно остаться задач после удаления.");
+    }
+
 
     @Test
     void removeEpicWithSubtaskFromAndCheckHistoryTest() {
