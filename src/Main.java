@@ -376,7 +376,7 @@ public class Main {
 
         List<Object> listOfEpic = manager.getAllEntitiesByClass(Epic.class);
         System.out.printf("Эпики(%d):\n", listOfEpic.size());
-        listOfEpic.forEach(epic->{
+        listOfEpic.forEach(epic -> {
             System.out.println(epic);
             manager.getListOfSubtaskByEpicId(((Epic) epic).getId()).forEach(task -> System.out.println("--> " + task));
         });

@@ -81,6 +81,73 @@ class InMemoryHistoryManagerTest {
     }
 
     @Test
+    public void shouldReturnEmptyHistoryWhenNoTasks() {
+        InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
+        assertTrue(historyManager.getHistory().isEmpty(), "История задач должна быть пустой.");
+    }
+
+    @Test
+    public void shouldNotAllowDuplicatesAndMoveToTheEndIfRepeated() {
+        InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
+        Task task1 = new Task(firstTaskTitle, firstTaskDescription, TaskStatus.NEW);
+        Task task2 = new Task(secondTaskTitle, secondTaskDescription, TaskStatus.NEW);
+
+        historyManager.add(task1);
+        historyManager.add(task2);
+        historyManager.add(task1); // Добавляем task1 еще раз
+
+        List<Task> history = historyManager.getHistory();
+        assertEquals(2, history.size(), "История должна содержать 2 уникальных задачи.");
+        assertEquals(task2, history.get(0), "Task2 должен быть первым в истории.");
+        assertEquals(task1, history.get(1), "Task1 должен быть перемещен в конец истории.");
+    }
+
+    @Test
+    public void shouldRemoveTaskFromStartOfHistory() {
+        InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
+        Task task1 = new Task(firstTaskTitle, firstTaskDescription, TaskStatus.NEW);
+        Task task2 = new Task(secondTaskTitle, secondTaskDescription, TaskStatus.NEW);
+
+        historyManager.add(task1);
+        historyManager.add(task2);
+
+        historyManager.remove(task1.getId());
+
+        assertFalse(historyManager.getHistory().contains(task1), "Task1 должен быть удален из истории.");
+    }
+
+    @Test
+    public void shouldRemoveTaskFromMiddleOfHistory() {
+        InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
+        Task task1 = new Task(firstTaskTitle, firstTaskDescription, TaskStatus.NEW);
+        Task task2 = new Task(secondTaskTitle, secondTaskDescription, TaskStatus.NEW);
+        Task task3 = new Task(thirdTaskTitle, thirdTaskDescription, TaskStatus.NEW);
+
+        historyManager.add(task1);
+        historyManager.add(task2);
+        historyManager.add(task3);
+
+        historyManager.remove(task2.getId());
+
+        assertFalse(historyManager.getHistory().contains(task2), "Task2 должен быть удален из истории.");
+    }
+
+    @Test
+    public void shouldRemoveTaskFromEndOfHistory() {
+        InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
+        Task task1 = new Task(firstTaskTitle, firstTaskDescription, TaskStatus.NEW);
+        Task task2 = new Task(secondTaskTitle, secondTaskDescription, TaskStatus.NEW);
+
+        historyManager.add(task1);
+        historyManager.add(task2);
+
+        historyManager.remove(task2.getId());
+
+        assertFalse(historyManager.getHistory().contains(task2), "Task2 должен быть удален из истории.");
+    }
+
+
+    @Test
     void orderOfAddedTasksTest() {
         Task firstTask = new Task(firstTaskTitle, firstTaskDescription, TaskStatus.NEW);
         Task secondTask = new Task(secondTaskTitle, secondTaskDescription, TaskStatus.NEW);

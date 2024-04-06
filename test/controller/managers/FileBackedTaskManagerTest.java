@@ -2,50 +2,32 @@ package controller.managers;
 
 import controller.history.HistoryManager;
 import controller.history.InMemoryHistoryManager;
+import manager.Managers;
 import model.Epic;
 import model.Subtask;
 import model.Task;
 import model.TaskStatus;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static controller.managers.FileBackedTaskManager.historyFromString;
+import static java.io.File.createTempFile;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class FileBackedTaskManagerTest {
+public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
 
-    static String firstTaskTitle;
-    static String firstTaskDescription;
-    static String secondTaskTitle;
-    static String secondTaskDescription;
-    static String firstEpicTitle;
-    static String firstEpicDescription;
-    static String thirdSubTaskTitle;
-    static String thirdSubTaskDescription;
-    static String secondSubTaskTitleForFirstEpic;
-    static String secondSubTaskDescriptionForFirstEpic;
-
-    @BeforeAll
-    static void initTextLabels() {
-        firstTaskTitle = "Переезд";
-        firstTaskDescription = "Новая квартира по адресу Москва ул. Дружбы";
-        secondTaskTitle = "Пример второй задачи";
-        secondTaskDescription = "Описание второй задачи";
-        firstEpicTitle = "Написание диплома";
-        firstEpicDescription = "Для выпуска из университета";
-        secondSubTaskTitleForFirstEpic = "Заголовок 2 подзадачи";
-        secondSubTaskDescriptionForFirstEpic = "Описание 2 подзадачи";
-        thirdSubTaskTitle = "Чтение литературы";
-        thirdSubTaskDescription = "Из рекомендованной руководителем";
-    }
 
     @Test
     public void testSaveAndLoadEmptyFile() throws IOException {
-        File tempFile = File.createTempFile("emptyTasks", ".csv");
+        File tempFile = createTempFile("emptyTasks", ".csv");
         tempFile.deleteOnExit();
 
         HistoryManager historyManager = new InMemoryHistoryManager();
@@ -58,7 +40,7 @@ public class FileBackedTaskManagerTest {
 
     @Test
     public void testSaveAndLoadMultipleTasks() throws IOException {
-        File tempFile = File.createTempFile("multipleTasks", ".csv");
+        File tempFile = createTempFile("multipleTasks", ".csv");
         tempFile.deleteOnExit();
 
         HistoryManager historyManager = new InMemoryHistoryManager();
@@ -76,7 +58,7 @@ public class FileBackedTaskManagerTest {
 
     @Test
     void testSaveAndLoadManagerWithTasks() throws IOException {
-        File tempFile = File.createTempFile("managerWithTasks", ".csv");
+        File tempFile = createTempFile("managerWithTasks", ".csv");
         tempFile.deleteOnExit();
         HistoryManager historyManager = new InMemoryHistoryManager();
         FileBackedTaskManager manager = new FileBackedTaskManager(historyManager, tempFile.getAbsolutePath());
@@ -96,78 +78,89 @@ public class FileBackedTaskManagerTest {
         assertNotNull(loadedManager.getSubtaskById(subtask1.getId()), "Подзадача должна быть загружена");
     }
 
-
     @Test
-    void removeSubTaskAndCheckThatThereDeletedFromEpicTest() throws IOException {
-        // Создаем временный файл для теста
-        File tempFile = File.createTempFile("testRemoveSubtask", ".csv");
-        tempFile.deleteOnExit();
+    void saveShouldNotThrowExceptionWhenFilePathIsValid() throws IOException {
+        String filePath = createTempFile("FileBackedTaskManager", ".csv").getPath();
+        FileBackedTaskManager manager = new FileBackedTaskManager(new InMemoryHistoryManager(), filePath);
 
-        // Инициализируем FileBackedTaskManager с временным файлом
-        InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
-        FileBackedTaskManager manager = new FileBackedTaskManager(historyManager, tempFile.getAbsolutePath());
+        // Добавление задачи для сохранения
+        manager.createNewTask(firstTaskTitle, firstTaskDescription, TaskStatus.NEW.name(),
+                LocalDateTime.now(), Duration.ofHours(1));
 
-        // Создаем эпик и подзадачи
-        Epic firstEpic = manager.createNewEpic(firstEpicTitle, firstEpicDescription);
-        Subtask secondTask = manager.createNewSubtask(thirdSubTaskTitle, thirdSubTaskDescription,
-                TaskStatus.NEW.name(), firstEpic.getId(), null, Duration.ZERO);
-        Subtask thirdTask = manager.createNewSubtask(secondSubTaskTitleForFirstEpic,
-                secondSubTaskDescriptionForFirstEpic, TaskStatus.NEW.name(), firstEpic.getId(),
-                null, Duration.ZERO);
-
-        // Удаляем одну подзадачу
-        manager.removeTaskById(secondTask.getId());
-
-        // Загружаем менеджер задач из файла
-        FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(tempFile, historyManager);
-
-        // Проверяем, что удаленная подзадача отсутствует в списке подзадач эпика
-        assertFalse(loadedManager.getListOfSubtaskByEpicId(firstEpic.getId()).contains(secondTask),
-                "Удаленная подзадача не должна присутствовать в списке подзадач эпика.");
-
-        // Проверяем, что удаленная подзадача отсутствует в общем списке задач
-        assertFalse(loadedManager.getListOfAllEntities().contains(secondTask),
-                "Удаленная подзадача не должна присутствовать в общем списке задач.");
-
-        // Дополнительная проверка на наличие неудаленной подзадачи
-        assertTrue(loadedManager.getListOfSubtaskByEpicId(firstEpic.getId()).contains(thirdTask),
-                "Неудаленная подзадача должна присутствовать в списке подзадач эпика.");
+        // Проверка, что сохранение не вызывает исключения
+        Assertions.assertDoesNotThrow(manager::save, "Метод save должен корректно сохранять данные в файл без выброса исключений.");
     }
 
     @Test
-    void removeEpicWithSubtaskFromAndCheckHistoryTest() throws IOException {
-        // Создаем временный файл для теста
-        File tempFile = File.createTempFile("testRemoveEpicWithSubtasks", ".csv");
-        tempFile.deleteOnExit();
+    void saveShouldThrowManagerSaveExceptionWhenFilePathIsInvalid() {
+        // filePath указывает на несуществующую директорию
+        String invalidFilePath = "/path/to/nonexistent/directory/file.csv";
+        FileBackedTaskManager manager = new FileBackedTaskManager(new InMemoryHistoryManager(), invalidFilePath);
 
-        // Инициализируем FileBackedTaskManager с временным файлом
-        InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
-        FileBackedTaskManager manager = new FileBackedTaskManager(historyManager, tempFile.getAbsolutePath());
+        // Проверка, что попытка сохранения выбросит ManagerSaveException из-за невозможности найти файл
+        Assertions.assertThrows(ManagerSaveException.class, manager::save,
+                "Метод save должен выбрасывать ManagerSaveException при попытке сохранения в несуществующий файл.");
+    }
 
-        // Создаем эпик, подзадачи и отдельную задачу
-        Epic firstEpic = manager.createNewEpic(firstEpicTitle, firstEpicDescription);
-        Subtask secondTask = manager.createNewSubtask(secondTaskTitle, secondTaskDescription,
-                TaskStatus.NEW.name(), firstEpic.getId(), null, Duration.ZERO);
-        Subtask thirdTask = manager.createNewSubtask(thirdSubTaskTitle, thirdSubTaskDescription,
-                TaskStatus.NEW.name(), firstEpic.getId(), null, Duration.ZERO);
-        Task fourthTask = manager.createNewTask(firstTaskTitle, firstTaskDescription, TaskStatus.NEW.name(),
-                null, Duration.ZERO);
+    @Test
+    void createNewTaskShouldThrowExceptionWhenSaveFails() {
+        // filePath указывает на несуществующую директорию, вызывающую ошибку при сохранении
+        String invalidFilePath = "/path/to/nonexistent/directory/file.csv";
+        FileBackedTaskManager manager = new FileBackedTaskManager(new InMemoryHistoryManager(), invalidFilePath);
 
-        // Добавляем задачи в историю просмотров
-        manager.getEpicById(firstEpic.getId());
-        manager.getSubtaskById(secondTask.getId());
-        manager.getSubtaskById(thirdTask.getId());
-        manager.getTaskById(fourthTask.getId());
+        // Ожидаем, что будет выброшено исключение ManagerSaveException при попытке создания новой задачи,
+        // так как это приведет к вызову метода save(), неспособного выполнить сохранение.
+        Assertions.assertThrows(ManagerSaveException.class, () -> {
+            manager.createNewTask(firstTaskTitle, firstTaskDescription, TaskStatus.NEW.name(), LocalDateTime.now(), Duration.ofHours(1));
+        }, "Метод createNewTask должен выбрасывать ManagerSaveException при ошибке сохранения задачи.");
+    }
 
-        // Удаляем эпик вместе с подзадачами
-        manager.removeTaskById(firstEpic.getId());
+    @Test
+    void shouldConvertCommaSeparatedStringToIntList() {
+        String testValue = "1,2,3,4,5";
+        List<Integer> expected = Arrays.asList(1, 2, 3, 4, 5);
+        List<Integer> actual = historyFromString(testValue);
+        Assertions.assertEquals(expected, actual, "Список целых чисел не соответствует ожидаемому.");
+    }
 
-        // Загружаем менеджер задач из файла
-        FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(tempFile, historyManager);
+    @Test
+    void shouldHandleEmptyString() {
+        String testValue = "";
+        List<Integer> expected = List.of();
+        List<Integer> actual = historyFromString(testValue);
+        Assertions.assertTrue(actual.isEmpty(), "Пустая строка должна приводить к пустому списку.");
+    }
 
-        assertFalse(loadedManager.getHistoryManager().getHistory().contains(secondTask), "Вторая задача должна быть удалена из истории");
-        assertFalse(loadedManager.getHistoryManager().getHistory().contains(firstEpic), "Эпик должен быть удален из истории");
-        assertFalse(loadedManager.getHistoryManager().getHistory().contains(thirdTask), "Третья задача должна быть удалена из истории");
-        assertTrue(loadedManager.getHistoryManager().getHistory().contains(fourthTask), "Четвертая задача должна остаться в истории");
+    @Test
+    void shouldHandleSingleValue() {
+        String testValue = "42";
+        List<Integer> expected = List.of(42);
+        List<Integer> actual = historyFromString(testValue);
+        Assertions.assertEquals(expected, actual, "Список из одного значения не соответствует ожидаемому.");
+    }
+
+    @Test
+    void shouldIgnoreSpaces() {
+        String testValue = "1, 2, 3 , 4 ,5";
+        List<Integer> expected = Arrays.asList(1, 2, 3, 4, 5);
+        List<Integer> actual = historyFromString(testValue);
+        Assertions.assertEquals(expected, actual, "Список целых чисел должен корректно обрабатывать пробелы.");
+    }
+
+    @Test
+    void shouldThrowNumberFormatExceptionForInvalidValues() {
+        String testValue = "1,2,abc,4,5";
+        Assertions.assertThrows(NumberFormatException.class, () -> historyFromString(testValue),
+                "Строка с некорректными значениями должна приводить к NumberFormatException.");
+    }
+    @Override
+    FileBackedTaskManager createTaskManager() {
+        try {
+            File file = createTempFile("FileBackedTaskManager", ".csv");
+            return new FileBackedTaskManager(Managers.getDefaultHistory(), file.getAbsolutePath());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 }

@@ -35,8 +35,4 @@ public class Subtask extends Task {
                 '}';
     }
 
-    public Subtask(Task task, long epicId) {
-        super(task.getTitle(), task.getDescription(), task.getStatus(), task.getStartTime(), task.getDuration());
-        this.epicId = epicId;
-    }
 }

@@ -10,7 +10,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 
 public class InMemoryTaskManager implements TaskManager {
@@ -61,7 +60,14 @@ public class InMemoryTaskManager implements TaskManager {
             addToTasksList(newTask);
             return newTask;
         } else {
-            System.out.println("Невозможно добавить задачу из-за пересечения времени выполнения с существующей задачей.");
+            Task task = prioritizedTasks.stream()
+                    .filter(existingTask -> tasksOverlap(
+                            newTask.getStartTime(), newTask.getDuration(),
+                            existingTask.getStartTime(), existingTask.getDuration()))
+                    .findFirst()
+                    .orElse(null);
+            System.out.printf("Невозможно добавить задачу %s из-за пересечения времени выполнения" +
+                    " с существующей задачей %s.\n", newTask, task);
             return null;
         }
     }
@@ -119,12 +125,17 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void addToTasksList(Object obj) {
+        if (obj == null) return;
         Task task = (Task) obj;
         if (task.getStartTime() != null) {
             prioritizedTasks.add(task);
         }
 
         listOfAllTasks.add(obj);
+        if (obj instanceof Subtask) {
+            updateEpicTimeAndDuration(((Subtask) obj).getEpicId());
+        }
+
     }
 
     @Override
@@ -144,7 +155,6 @@ public class InMemoryTaskManager implements TaskManager {
             if (!overlap) {
                 addToTasksList(subtask);
                 actualizationEpicStatus(subtask);
-                updateEpicTimeAndDuration(epicId);
                 return subtask;
             } else {
                 System.out.println("Невозможно добавить задачу из-за пересечения времени " +
@@ -215,24 +225,27 @@ public class InMemoryTaskManager implements TaskManager {
     public Task getTaskById(long id) {
         Object task = getEntityById(id);
 
-        if (task.getClass().equals(Task.class)) {
+        if (task != null && task.getClass().equals(Task.class)) {
             historyManager.add((Task) task);
         } else {
-            System.out.printf("Запрашиваемый id = %d не принадлежит Task, а является %s\n", id, task.getClass());
+            String nameClass = task == null ? "null" : String.valueOf(task.getClass());
+            System.out.printf("Запрашиваемый id = %d не принадлежит Task, а является %s\n", id, nameClass);
             return null;
         }
 
         return (Task) task;
     }
 
+
     @Override
     public Epic getEpicById(long id) {
         Object task = getEntityById(id);
 
-        if (task.getClass().equals(Epic.class)) {
+        if (task != null && task.getClass().equals(Epic.class)) {
             historyManager.add((Task) task);
         } else {
-            System.out.printf("Запрашиваемый id = %d не принадлежит Epic, а является %s", id, task.getClass());
+            String nameClass = task == null ? "null" : String.valueOf(task.getClass());
+            System.out.printf("Запрашиваемый id = %d не принадлежит Epic, а является %s", id, nameClass);
             return null;
         }
 

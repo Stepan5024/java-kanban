@@ -6,17 +6,19 @@ import model.Subtask;
 import model.Task;
 import model.TaskStatus;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static java.util.Arrays.*;
+import static java.util.Arrays.asList;
 
 public class FileBackedTaskManager extends InMemoryTaskManager implements TaskManager {
 
@@ -47,8 +49,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         String epicId = task instanceof Subtask ? String.valueOf(((Subtask) task).getEpicId()) : "";
         String startTimeStr = task.getStartTime() == null ? "null" : task.getStartTime().toString();
         String durationStr = task.getDuration() == null || task.getDuration().equals(Duration.ZERO) ? "PT0S" : task.getDuration().toString();
-        return String.format("%d,%s,%s,%s,%s,%s,%s,%s", task.getId(), type, task.getTitle(),
-                task.getStatus(), task.getDescription(), epicId, startTimeStr, durationStr);
+        return String.format("%d,%s,%s,%s,%s,%s,%s,%s", task.getId(), type, task.getTitle(), task.getStatus(), task.getDescription(), epicId, startTimeStr, durationStr);
     }
 
     private static String historyToString(HistoryManager manager) {
@@ -113,7 +114,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         LocalDateTime startTime = null;
         if (parts.length > 6 && !"null".equals(parts[6])) {
             try {
-
                 startTime = LocalDateTime.parse(parts[6]);
             } catch (Exception e) {
                 System.err.println("Error parsing LocalDateTime for task: " + value);
@@ -130,7 +130,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
             case "EPIC":
                 task = new Epic(title, description, status);
                 // Для эпиков startTime и duration вычисляются отдельно
-                //TODO
+
                 break;
             case "SUBTASK":
                 long epicId = Long.parseLong(parts[5].trim());
@@ -145,15 +145,19 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         return task;
     }
 
-    private static List<Integer> historyFromString(String value) {
+    static List<Integer> historyFromString(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return List.of(); // Возвращаем пустой список
+        }
+
         return Arrays.stream(value.split(","))
+                .map(String::trim)
                 .map(Integer::parseInt)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public Task createNewTask(String title, String description, String status,
-                              LocalDateTime startTime, Duration duration) {
+    public Task createNewTask(String title, String description, String status, LocalDateTime startTime, Duration duration) {
         Task task = super.createNewTask(title, description, status, startTime, duration);
         save();
         return task;
@@ -167,8 +171,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     }
 
     @Override
-    public Subtask createNewSubtask(String title, String description, String status, long epicId,
-                                    LocalDateTime startTime, Duration duration) {
+    public Subtask createNewSubtask(String title, String description, String status, long epicId, LocalDateTime startTime, Duration duration) {
         Subtask subtask = super.createNewSubtask(title, description, status, epicId, startTime, duration);
         save();
         return subtask;
