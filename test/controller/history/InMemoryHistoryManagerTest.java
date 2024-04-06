@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -96,25 +97,25 @@ class InMemoryHistoryManagerTest {
     void getHistoryUniqueTask() {
         ArrayList<Task> expectedList = new ArrayList<>();
         Task task1 = memoryTaskManagerTest.createNewTask(firstTaskTitle,
-                firstTaskDescription, "DONE");
+                firstTaskDescription, "DONE", null, Duration.ZERO);
         Epic epic1 = memoryTaskManagerTest.createNewEpic(firstEpicTitle,
                 firstEpicDescription);
         Subtask subtask1 = memoryTaskManagerTest.createNewSubtask(thirdSubTaskTitle,
-                thirdSubTaskDescription, "NEW", epic1.getId());
+                thirdSubTaskDescription, "NEW", epic1.getId(), null, Duration.ZERO);
         Subtask subtask2 = memoryTaskManagerTest.createNewSubtask(secondSubTaskTitleForFirstEpic,
-                secondSubTaskDescriptionForFirstEpic, "NEW", epic1.getId());
+                secondSubTaskDescriptionForFirstEpic, "NEW", epic1.getId(), null, Duration.ZERO);
         Task task2 = memoryTaskManagerTest.createNewTask(fourTaskTitle,
-                fourTaskDescription, "DONE");
+                fourTaskDescription, "DONE", null, Duration.ZERO);
         Epic epic2 = memoryTaskManagerTest.createNewEpic(secondEpicTitle,
                 secondEpicDescription);
         Task task3 = memoryTaskManagerTest.createNewTask(thirdTaskTitle,
-                thirdTaskDescription, "DONE");
+                thirdTaskDescription, "DONE", null, Duration.ZERO);
         Epic epic3 = memoryTaskManagerTest.createNewEpic(thirdEpicTitle,
                 thirdEpicDescription);
         Subtask subtask3 = memoryTaskManagerTest.createNewSubtask(firstTaskTitle,
-                firstTaskDescription, "NEW", epic1.getId());
+                firstTaskDescription, "NEW", epic1.getId(), null, Duration.ZERO);
         Subtask subtask4 = memoryTaskManagerTest.createNewSubtask(firstTaskTitle,
-                firstTaskDescription, "NEW", epic1.getId());
+                firstTaskDescription, "NEW", epic1.getId(), null, Duration.ZERO);
         expectedList.add(task1);
         expectedList.add(epic1);
         expectedList.add(subtask1);
@@ -152,11 +153,11 @@ class InMemoryHistoryManagerTest {
         List<Task> listOfReturnedHistory;
 
         Task task1 = memoryTaskManagerTest.createNewTask(firstTaskTitle,
-                firstTaskDescription, "DONE");
+                firstTaskDescription, "DONE", null, Duration.ZERO);
         Epic epic1 = memoryTaskManagerTest.createNewEpic(firstEpicTitle,
                 firstEpicDescription);
         Subtask subtask1 = memoryTaskManagerTest.createNewSubtask(thirdSubTaskTitle,
-                thirdSubTaskDescription, "NEW", epic1.getId());
+                thirdSubTaskDescription, "NEW", epic1.getId(), null, Duration.ZERO);
 
         expectedList.add(task1);
         historyManager.add(task1);
@@ -164,7 +165,8 @@ class InMemoryHistoryManagerTest {
         listOfReturnedHistory = historyManager.getHistory();
         int expected1 = 1;
         assertEquals(expected1, listOfReturnedHistory.size(),
-                String.format("Было создано %d уникальных просмотров, а вернулось %d", expected1, listOfReturnedHistory.size()));
+                String.format("Было создано %d уникальных просмотров, а вернулось %d",
+                        expected1, listOfReturnedHistory.size()));
         for (int i = 0; i < expectedList.size(); i++) {
             assertEquals(expectedList.get(i), listOfReturnedHistory.get(i), String.format("Объекты" +
                     " в истории не равны %s %s", expectedList.get(i), listOfReturnedHistory.get(i)));
@@ -175,7 +177,8 @@ class InMemoryHistoryManagerTest {
         expected1 = 2;
         listOfReturnedHistory = historyManager.getHistory();
         assertEquals(expected1, listOfReturnedHistory.size(),
-                String.format("Было создано %d уникальных просмотров, а вернулось %d", expected1, listOfReturnedHistory.size()));
+                String.format("Было создано %d уникальных просмотров, а вернулось %d",
+                        expected1, listOfReturnedHistory.size()));
         for (int i = 0; i < expectedList.size(); i++) {
             assertEquals(expectedList.get(i), listOfReturnedHistory.get(i), String.format("Объекты" +
                     " в истории не равны %s %s", expectedList.get(i), listOfReturnedHistory.get(i)));
@@ -186,7 +189,8 @@ class InMemoryHistoryManagerTest {
         expected1 = 3;
         listOfReturnedHistory = historyManager.getHistory();
         assertEquals(expected1, listOfReturnedHistory.size(),
-                String.format("Было создано %d уникальных просмотров, а вернулось %d", expected1, listOfReturnedHistory.size()));
+                String.format("Было создано %d уникальных просмотров, а вернулось %d",
+                        expected1, listOfReturnedHistory.size()));
         for (int i = 0; i < expectedList.size(); i++) {
             assertEquals(expectedList.get(i), listOfReturnedHistory.get(i), String.format("Объекты" +
                     " в истории не равны %s %s", expectedList.get(i), listOfReturnedHistory.get(i)));
@@ -210,11 +214,11 @@ class InMemoryHistoryManagerTest {
         int sizeHistoryListBefore = historyManager.getRecentTasks().size();
 
         Task task1 = memoryTaskManagerTest.createNewTask(firstTaskTitle,
-                firstTaskDescription, "DONE");
+                firstTaskDescription, "DONE", null, Duration.ZERO);
         Epic epic1 = memoryTaskManagerTest.createNewEpic(firstEpicTitle,
                 firstEpicDescription);
         Subtask subtask1 = memoryTaskManagerTest.createNewSubtask(thirdSubTaskTitle,
-                thirdSubTaskDescription, "NEW", epic1.getId());
+                thirdSubTaskDescription, "NEW", epic1.getId(), null, Duration.ZERO);
 
         historyManager.add(task1);
         historyManager.add(epic1);

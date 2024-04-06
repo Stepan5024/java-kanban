@@ -6,8 +6,11 @@ import model.Subtask;
 import model.Task;
 import model.TaskStatus;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 public class InMemoryTaskManager implements TaskManager {
@@ -35,11 +38,11 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Task createNewTask(String title, String description, String status) {
+    public Task createNewTask(String title, String description, String status,
+                              LocalDateTime startTime, Duration duration) {
         // ТЗ пункт 2. D Создание Задачи
-        Task task = new Task(title,
-                description,
-                TaskStatus.valueOf(status));
+        Task task = new Task(title, description,
+                TaskStatus.valueOf(status), startTime, duration);
         addToTasksList(task);
         return task;
     }
@@ -90,10 +93,11 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Subtask createNewSubtask(String title, String description, String status, long epicId) {
+    public Subtask createNewSubtask(String title, String description, String status, long epicId,
+                                    LocalDateTime startTime, Duration duration) {
         // ТЗ пункт 2. D Создание Подзадачи
         if (checkIsEpic(epicId)) {
-            Subtask subtask = new Subtask(title, description, TaskStatus.valueOf(status), epicId);
+            Subtask subtask = new Subtask(title, description, TaskStatus.valueOf(status), epicId, startTime, duration);
             addToTasksList(subtask);
             actualizationEpicStatus(subtask);
             return subtask;
@@ -111,6 +115,39 @@ public class InMemoryTaskManager implements TaskManager {
             }
         }
         return true;
+    }
+
+    @Override
+    public void updateEpicTimeAndDuration(long epicId) {
+        List<Subtask> subtasks = getListOfSubtaskByEpicId(epicId);
+        if (subtasks.isEmpty()) {
+            return;
+        }
+
+        LocalDateTime startTime = subtasks.stream()
+                .map(Subtask::getStartTime)
+                .filter(Objects::nonNull)
+                .min(LocalDateTime::compareTo)
+                .orElse(null);
+
+        LocalDateTime endTime = subtasks.stream()
+                .map(Task::getEndTime)
+                .filter(Objects::nonNull)
+                .max(LocalDateTime::compareTo)
+                .orElse(null);
+
+        Duration duration = subtasks.stream()
+                .map(Subtask::getDuration)
+                .filter(Objects::nonNull)
+                .reduce(Duration::plus)
+                .orElse(Duration.ZERO);
+
+        Epic epic = getEpicById(epicId);
+        if (epic != null) {
+            // Здесь должна быть логика для установки вычисленных значений startTime и duration для эпика
+            // Эпик может иметь методы для обновления этих значений, или вы можете обновить их напрямую,
+            // если эпик будет хранить эти значения как часть своего состояния.
+        }
     }
 
     @Override

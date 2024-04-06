@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.Duration;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -63,9 +64,10 @@ public class FileBackedTaskManagerTest {
         HistoryManager historyManager = new InMemoryHistoryManager();
         FileBackedTaskManager manager = new FileBackedTaskManager(historyManager, tempFile.getAbsolutePath());
 
-        manager.createNewTask(firstTaskTitle, firstTaskDescription, "NEW");
+        manager.createNewTask(firstTaskTitle, firstTaskDescription, "NEW", null, Duration.ZERO);
         Epic epic = manager.createNewEpic(firstEpicTitle, firstEpicDescription);
-        manager.createNewSubtask(secondSubTaskTitleForFirstEpic, secondSubTaskDescriptionForFirstEpic, "NEW", epic.getId());
+        manager.createNewSubtask(secondSubTaskTitleForFirstEpic, secondSubTaskDescriptionForFirstEpic,
+                "NEW", epic.getId(), null, Duration.ZERO);
 
 
         FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(tempFile, historyManager);
@@ -80,9 +82,10 @@ public class FileBackedTaskManagerTest {
         FileBackedTaskManager manager = new FileBackedTaskManager(historyManager, tempFile.getAbsolutePath());
 
         // Добавляем задачи
-        Task task1 = manager.createNewTask(firstTaskTitle, firstTaskDescription, "NEW");
+        Task task1 = manager.createNewTask(firstTaskTitle, firstTaskDescription, "NEW", null, Duration.ZERO);
         Epic epic1 = manager.createNewEpic(firstEpicTitle, firstEpicDescription);
-        Subtask subtask1 = manager.createNewSubtask(thirdSubTaskTitle, thirdSubTaskDescription, "NEW", epic1.getId());
+        Subtask subtask1 = manager.createNewSubtask(thirdSubTaskTitle, thirdSubTaskDescription,
+                "NEW", epic1.getId(), null, Duration.ZERO);
 
         FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(tempFile, historyManager);
 
@@ -106,8 +109,11 @@ public class FileBackedTaskManagerTest {
 
         // Создаем эпик и подзадачи
         Epic firstEpic = manager.createNewEpic(firstEpicTitle, firstEpicDescription);
-        Subtask secondTask = manager.createNewSubtask(thirdSubTaskTitle, thirdSubTaskDescription, TaskStatus.NEW.name(), firstEpic.getId());
-        Subtask thirdTask = manager.createNewSubtask(secondSubTaskTitleForFirstEpic, secondSubTaskDescriptionForFirstEpic, TaskStatus.NEW.name(), firstEpic.getId());
+        Subtask secondTask = manager.createNewSubtask(thirdSubTaskTitle, thirdSubTaskDescription,
+                TaskStatus.NEW.name(), firstEpic.getId(), null, Duration.ZERO);
+        Subtask thirdTask = manager.createNewSubtask(secondSubTaskTitleForFirstEpic,
+                secondSubTaskDescriptionForFirstEpic, TaskStatus.NEW.name(), firstEpic.getId(),
+                null, Duration.ZERO);
 
         // Удаляем одну подзадачу
         manager.removeTaskById(secondTask.getId());
@@ -116,13 +122,16 @@ public class FileBackedTaskManagerTest {
         FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(tempFile, historyManager);
 
         // Проверяем, что удаленная подзадача отсутствует в списке подзадач эпика
-        assertFalse(loadedManager.getListOfSubtaskByEpicId(firstEpic.getId()).contains(secondTask), "Удаленная подзадача не должна присутствовать в списке подзадач эпика.");
+        assertFalse(loadedManager.getListOfSubtaskByEpicId(firstEpic.getId()).contains(secondTask),
+                "Удаленная подзадача не должна присутствовать в списке подзадач эпика.");
 
         // Проверяем, что удаленная подзадача отсутствует в общем списке задач
-        assertFalse(loadedManager.getListOfAllEntities().contains(secondTask), "Удаленная подзадача не должна присутствовать в общем списке задач.");
+        assertFalse(loadedManager.getListOfAllEntities().contains(secondTask),
+                "Удаленная подзадача не должна присутствовать в общем списке задач.");
 
         // Дополнительная проверка на наличие неудаленной подзадачи
-        assertTrue(loadedManager.getListOfSubtaskByEpicId(firstEpic.getId()).contains(thirdTask), "Неудаленная подзадача должна присутствовать в списке подзадач эпика.");
+        assertTrue(loadedManager.getListOfSubtaskByEpicId(firstEpic.getId()).contains(thirdTask),
+                "Неудаленная подзадача должна присутствовать в списке подзадач эпика.");
     }
 
     @Test
@@ -137,9 +146,12 @@ public class FileBackedTaskManagerTest {
 
         // Создаем эпик, подзадачи и отдельную задачу
         Epic firstEpic = manager.createNewEpic(firstEpicTitle, firstEpicDescription);
-        Subtask secondTask = manager.createNewSubtask(secondTaskTitle, secondTaskDescription, TaskStatus.NEW.name(), firstEpic.getId());
-        Subtask thirdTask = manager.createNewSubtask(thirdSubTaskTitle, thirdSubTaskDescription, TaskStatus.NEW.name(), firstEpic.getId());
-        Task fourthTask = manager.createNewTask(firstTaskTitle, firstTaskDescription, TaskStatus.NEW.name());
+        Subtask secondTask = manager.createNewSubtask(secondTaskTitle, secondTaskDescription,
+                TaskStatus.NEW.name(), firstEpic.getId(), null, Duration.ZERO);
+        Subtask thirdTask = manager.createNewSubtask(thirdSubTaskTitle, thirdSubTaskDescription,
+                TaskStatus.NEW.name(), firstEpic.getId(), null, Duration.ZERO);
+        Task fourthTask = manager.createNewTask(firstTaskTitle, firstTaskDescription, TaskStatus.NEW.name(),
+                null, Duration.ZERO);
 
         // Добавляем задачи в историю просмотров
         manager.getEpicById(firstEpic.getId());

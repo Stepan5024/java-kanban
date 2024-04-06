@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 
@@ -85,7 +86,8 @@ class InMemoryTaskManagerTest {
 
     @Test
     void addNewTask() {
-        final Task savedTask = (memoryTaskManagerTest.createNewTask(firstTaskTitle, firstTaskDescription, "NEW"));
+        final Task savedTask = (memoryTaskManagerTest.createNewTask(firstTaskTitle, firstTaskDescription, "NEW",
+                null, Duration.ZERO));
         Task task = new Task(secondTaskTitle, secondTaskDescription, NEW, savedTask.getId());
         assertNotNull(savedTask, "Задача не найдена.");
         assertEquals(task, savedTask, "Задачи не совпадают.");
@@ -103,7 +105,7 @@ class InMemoryTaskManagerTest {
         Subtask subtask = memoryTaskManagerTest.createNewSubtask(
                 thirdSubTaskTitle,
                 thirdSubTaskDescription,
-                "NEW", ++idNewSubtask);
+                "NEW", ++idNewSubtask, null, Duration.ZERO);
         Assertions.assertNull(subtask, "Нельзя установить подзадачу как собственный Epic");
     }
 
@@ -115,7 +117,7 @@ class InMemoryTaskManagerTest {
         Subtask subtask = memoryTaskManagerTest.createNewSubtask(
                 secondSubTaskTitleForFirstEpic,
                 secondSubTaskDescriptionForFirstEpic,
-                "NEW", epic.getId());
+                "NEW", epic.getId(), null, Duration.ZERO);
 
         Object subtask2 = memoryTaskManagerTest.updateTask(subtask, epic.getId());
 
@@ -125,7 +127,7 @@ class InMemoryTaskManagerTest {
     @Test
     void createNewTask() {
         Task task = memoryTaskManagerTest.createNewTask(firstTaskTitle,
-                firstTaskDescription, "DONE");
+                firstTaskDescription, "DONE", null, Duration.ZERO);
 
         Assertions.assertEquals(Task.class, task.getClass(), "Класс создаваемых подзадач должен быть " +
                 "Task");
@@ -155,7 +157,7 @@ class InMemoryTaskManagerTest {
                 secondSubTaskTitleForFirstEpic,
                 secondSubTaskDescriptionForFirstEpic,
                 "NEW",
-                epic1.getId());
+                epic1.getId(), null, Duration.ZERO);
         Assertions.assertEquals(Subtask.class, subtask.getClass(), "Класс создаваемых подзадач должен быть " +
                 "subtask");
 
@@ -167,7 +169,7 @@ class InMemoryTaskManagerTest {
     void updateTask() {
 
         Task task1 = memoryTaskManagerTest.createNewTask(firstTaskTitle,
-                firstTaskDescription, "DONE");
+                firstTaskDescription, "DONE", null, Duration.ZERO);
         Task task2 = (Task) memoryTaskManagerTest.updateTask(new Task(secondTaskTitle,
                 secondTaskDescription, NEW, task1.getId()), task1.getId());
 
@@ -180,7 +182,7 @@ class InMemoryTaskManagerTest {
         Task task1 = new Task(firstTaskTitle, firstTaskDescription, NEW, 0);
         Task task2 = new Task(secondTaskTitle, secondTaskDescription, NEW, 0);
         Task task3 = memoryTaskManagerTest.createNewTask(thirdTaskTitle,
-                thirdTaskDescription, "DONE");
+                thirdTaskDescription, "DONE", null, Duration.ZERO);
 
         Epic epic0 = new Epic(firstEpicTitle, firstEpicDescription, NEW, 0);
         Epic epic1 = memoryTaskManagerTest.createNewEpic(secondEpicTitle,
@@ -209,9 +211,9 @@ class InMemoryTaskManagerTest {
 
         Epic firstEpic = taskManager.createNewEpic(firstEpicTitle, firstEpicDescription);
         Subtask secondTask = taskManager.createNewSubtask(secondSubTaskTitleForFirstEpic, secondSubTaskDescriptionForFirstEpic,
-                "NEW", firstEpic.getId());
+                "NEW", firstEpic.getId(), null, Duration.ZERO);
         Subtask thirdTask = taskManager.createNewSubtask(thirdSubTaskTitle, thirdSubTaskDescription,
-                "NEW", firstEpic.getId());
+                "NEW", firstEpic.getId(), null, Duration.ZERO);
 
         taskManager.removeTaskById(secondTask.getId());
 
@@ -228,12 +230,13 @@ class InMemoryTaskManagerTest {
         InMemoryHistoryManager historyManager = (InMemoryHistoryManager) taskManager.getHistoryManager();
 
         Epic firstEpic = taskManager.createNewEpic(firstEpicTitle, firstEpicDescription);
-        Subtask secondTask = taskManager.createNewSubtask(secondSubTaskTitleForFirstEpic, secondSubTaskTitleForFirstEpic,
-                "NEW", firstEpic.getId());
+        Subtask secondTask = taskManager.createNewSubtask(secondSubTaskTitleForFirstEpic,
+                secondSubTaskTitleForFirstEpic, "NEW", firstEpic.getId(), null, Duration.ZERO);
         Subtask thirdTask = taskManager.createNewSubtask(thirdSubTaskTitle, thirdSubTaskDescription,
-                "NEW", firstEpic.getId());
+                "NEW", firstEpic.getId(), null, Duration.ZERO);
 
-        Task fourthTask = taskManager.createNewTask(fourTaskTitle, fourTaskDescription, "NEW");
+        Task fourthTask = taskManager.createNewTask(fourTaskTitle, fourTaskDescription, "NEW",
+                null, Duration.ZERO);
 
         taskManager.getEpicById(firstEpic.getId());
         taskManager.getSubtaskById(secondTask.getId());

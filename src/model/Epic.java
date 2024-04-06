@@ -1,5 +1,8 @@
 package model;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 public class Epic extends Task {
 
     public Epic(String title, String description, TaskStatus taskStatus) {

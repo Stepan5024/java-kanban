@@ -12,6 +12,7 @@ import manager.Managers;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,11 +48,13 @@ public class Main {
         // Создание задач, эпиков и подзадач с использованием текстовых меток
         String taskStatusNew = TaskStatus.NEW.name();
         String taskStatusDone = TaskStatus.DONE.name();
-        Task task1 = manager.createNewTask(taskLabel1, taskDescription1, taskStatusNew);
-        Task task2 = manager.createNewTask(taskLabel2, taskDescription2, taskStatusDone);
+        Task task1 = manager.createNewTask(taskLabel1, taskDescription1, taskStatusNew, null, Duration.ZERO);
+        Task task2 = manager.createNewTask(taskLabel2, taskDescription2, taskStatusDone, null, Duration.ZERO);
         Epic epic1 = manager.createNewEpic(epicLabel1, epicDescription1);
-        Subtask subtask1 = manager.createNewSubtask(subtaskLabel1, subtaskDescription1, taskStatusNew, epic1.getId());
-        Subtask subtask2 = manager.createNewSubtask(subtaskLabel2, subtaskDescription2, taskStatusDone, epic1.getId());
+        Subtask subtask1 = manager.createNewSubtask(subtaskLabel1, subtaskDescription1, taskStatusNew, epic1.getId(),
+                null, Duration.ZERO);
+        Subtask subtask2 = manager.createNewSubtask(subtaskLabel2, subtaskDescription2, taskStatusDone, epic1.getId(),
+                null, Duration.ZERO);
 
         InMemoryHistoryManager historyManager = (InMemoryHistoryManager) manager.getHistoryManager();
 
@@ -117,8 +120,8 @@ public class Main {
 
         System.out.println("Создаем две задачи ...");
 
-        Task task1 = taskManager.createNewTask(firstTaskTitle, firstTaskDescription, "NEW");
-        Task task2 = taskManager.createNewTask(secondTaskTitle, secondTaskDescription, "NEW");
+        Task task1 = taskManager.createNewTask(firstTaskTitle, firstTaskDescription, "NEW", null, Duration.ZERO);
+        Task task2 = taskManager.createNewTask(secondTaskTitle, secondTaskDescription, "NEW", null, Duration.ZERO);
 
         System.out.println("Создаем эпик с тремя подзадачами ...");
 
@@ -128,17 +131,17 @@ public class Main {
                 secondSubTaskTitleForFirstEpic,
                 secondSubTaskDescriptionForFirstEpic,
                 "NEW",
-                epic1.getId());
+                epic1.getId(), null, Duration.ZERO);
         Subtask subtask2 = taskManager.createNewSubtask(
                 thirdSubTaskTitle,
                 thirdSubTaskDescription,
                 "NEW",
-                epic1.getId());
+                epic1.getId(), null, Duration.ZERO);
         Subtask subtask3 = taskManager.createNewSubtask(
                 thirdSubTaskTitle,
                 thirdSubTaskDescription,
                 "DONE",
-                epic1.getId());
+                epic1.getId(), null, Duration.ZERO);
         System.out.println("Создаем один эпик без подзадач ...");
 
         Epic epic2 = taskManager.createNewEpic(secondEpicTitle,
@@ -202,8 +205,8 @@ public class Main {
         String secondSubTaskDescriptionForFirstEpic = "Пум-Пум";
 
         InMemoryTaskManager taskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        Task task1 = taskManager.createNewTask(firstTaskTitle, firstTaskDescription, "NEW");
-        Task task2 = taskManager.createNewTask(secondTaskTitle, secondTaskDescription, "NEW");
+        Task task1 = taskManager.createNewTask(firstTaskTitle, firstTaskDescription, "NEW", null, Duration.ZERO);
+        Task task2 = taskManager.createNewTask(secondTaskTitle, secondTaskDescription, "NEW", null, Duration.ZERO);
         Epic epic1 = taskManager.createNewEpic(firstEpicTitle,
                 firstEpicDescription);
         long epic1Id = epic1.getId();
@@ -217,24 +220,24 @@ public class Main {
                 secondSubTaskTitleForFirstEpic,
                 thirdSubTaskDescription,
                 "NEW",
-                epic1Id);
+                epic1Id, null, Duration.ZERO);
         Subtask subtask2 = taskManager.createNewSubtask(
                 thirdSubTaskTitle,
                 thirdSubTaskDescription,
                 "NEW",
-                epic1Id);
+                epic1Id, null, Duration.ZERO);
         Subtask subtask3 = taskManager.createNewSubtask(
                 secondSubTaskTitleForFirstEpic,
                 secondSubTaskDescriptionForFirstEpic,
                 "DONE",
-                epic1Id);
+                epic1Id, null, Duration.ZERO);
         Subtask subtask4 = taskManager.createNewSubtask(
                 thirdSubTaskTitle,
                 thirdSubTaskDescription,
                 "IN_PROGRESS",
-                epic2.getId());
+                epic2.getId(), null, Duration.ZERO);
         Task task3 = taskManager.createNewTask(firstTaskTitle,
-                firstTaskDescription, "NEW");
+                firstTaskDescription, "NEW", null, Duration.ZERO);
         long subtask4Id = subtask4.getId();
 
         printAllList(taskManager);
@@ -244,7 +247,7 @@ public class Main {
                 "newDescription",
                 TaskStatus.valueOf("DONE"),
                 subtask4.getEpicId(),
-                subtask4Id), subtask4Id);
+                subtask4Id, null, Duration.ZERO), subtask4Id);
 
         System.out.printf("Подзадача после обновления %s\n", subtask4);
 

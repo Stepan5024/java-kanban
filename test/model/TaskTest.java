@@ -5,6 +5,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TaskTest {
@@ -44,6 +46,8 @@ class TaskTest {
                 ", title=" + task.getTitle() +
                 ", description='" + task.getDescription() + '\'' +
                 ", status=" + task.getStatus() +
+                ", startTime=" + task.getStartTime() +
+                ", duration=" + task.getDuration() +
                 '}';
         Assertions.assertEquals(expected, printedEpic, String.format("Expected %s output %s", expected, printedEpic));
 
@@ -61,9 +65,9 @@ class TaskTest {
     void checkTwoDuplicatesInheritorTaskById() {
         // 2. проверьте, что наследники класса Task равны друг другу, если равен их id;
         Subtask subtask1 = new Subtask(firstSubTaskTitleForFirstEpic, firstSubTaskDescriptionForFirstEpic,
-                TaskStatus.NEW, 1, 1);
+                TaskStatus.NEW, 1, 1, null, Duration.ZERO);
         Subtask subtask2 = new Subtask(secondSubTaskTitle, secondSubTaskDescription,
-                TaskStatus.NEW, 1, 1);
+                TaskStatus.NEW, 1, 1, null, Duration.ZERO);
         assertEquals(subtask1, subtask2, String.format("subtask1 != subtask2 by id. " +
                 "Expected that their id should be %d", task.getId()));
     }
