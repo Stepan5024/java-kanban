@@ -20,6 +20,9 @@ import java.util.List;
 public class Main {
 
     public static void main(String[] args) throws IOException {
+        runUserScript1();
+        runUserScript2();
+        runUserScript3();
         runUserScript4();
     }
 
@@ -317,9 +320,9 @@ public class Main {
         List<Object> epics = taskManager.getAllEntitiesByClass(Epic.class);
         System.out.println("Всего эпиков " + epics.size());
         System.out.println("Список всех эпиков:");
-        for (Object epic : epics) {
-            System.out.println(epic);
-        }
+
+        epics.forEach(System.out::println);
+
         printAllList(taskManager);
 
         System.out.printf("Удаляю эпик id = %d\n", epic1Id);
@@ -340,9 +343,9 @@ public class Main {
         List<Object> tasks = taskManager.getAllEntitiesByClass(Task.class);
         System.out.println("Всего задач " + tasks.size());
         System.out.println("Список всех задач:");
-        for (Object task : tasks) {
-            System.out.println(task);
-        }
+
+        tasks.forEach(System.out::println);
+
         System.out.println();
 
         System.out.println("Удаляю все задачи");
@@ -353,9 +356,7 @@ public class Main {
     private static void printHistory(InMemoryHistoryManager historyManager) {
         ArrayList<Task> listHistory = historyManager.getHistory();
         System.out.printf("Размер истории просмотра количества задач равен %d\n", listHistory.size());
-        for (Task task : listHistory) {
-            System.out.println(task);
-        }
+        listHistory.forEach(System.out::println);
         System.out.println();
     }
 
@@ -363,9 +364,7 @@ public class Main {
         System.out.println("\nВесь список канбан доски");
         List<Object> allTasks = taskManager.getListOfAllEntities();
 
-        for (Object obj : allTasks) {
-            System.out.println(obj);
-        }
+        allTasks.forEach(System.out::println);
         System.out.println();
     }
 
@@ -373,31 +372,23 @@ public class Main {
         System.out.println();
         List<Object> listOfTask = manager.getAllEntitiesByClass(Task.class);
         System.out.printf("Задачи(%d):\n", listOfTask.size());
-        for (Object task : listOfTask) {
-            System.out.println(task);
-        }
+        listOfTask.forEach(System.out::println);
 
         List<Object> listOfEpic = manager.getAllEntitiesByClass(Epic.class);
         System.out.printf("Эпики(%d):\n", listOfEpic.size());
-        for (Object epic : listOfEpic) {
+        listOfEpic.forEach(epic->{
             System.out.println(epic);
+            manager.getListOfSubtaskByEpicId(((Epic) epic).getId()).forEach(task -> System.out.println("--> " + task));
+        });
 
-            for (Task task : manager.getListOfSubtaskByEpicId(((Epic) epic).getId())) {
-                System.out.println("--> " + task);
-            }
-        }
         List<Object> listOfSubtask = manager.getAllEntitiesByClass(Subtask.class);
         System.out.printf("Подзадачи(%d):\n", listOfSubtask.size());
-        for (Object subtask : listOfSubtask) {
-            System.out.println(subtask);
-        }
+        listOfSubtask.forEach(System.out::println);
 
         HistoryManager historyManager = manager.getHistoryManager();
         List<Task> listOfHistory = historyManager.getHistory();
         System.out.printf("История(%d):\n", listOfHistory.size());
-        for (Task task : listOfHistory) {
-            System.out.println(task);
-        }
+        listOfHistory.forEach(System.out::println);
         System.out.println();
     }
 }

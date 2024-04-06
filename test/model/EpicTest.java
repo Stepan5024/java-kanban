@@ -36,6 +36,7 @@ class EpicTest {
                 ", title='" + epic.getTitle() + '\'' +
                 ", description='" + epic.getDescription() + '\'' +
                 ", status=" + epic.getStatus() +
+                ", endTime=" + epic.getEndTime() +
                 '}';
         Assertions.assertEquals(expected, printedEpic, String.format("Expected %s output %s", expected, printedEpic));
     }

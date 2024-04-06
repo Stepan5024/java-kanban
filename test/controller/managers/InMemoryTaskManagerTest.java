@@ -61,6 +61,20 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
+    void getPrioritizedTasks_ShouldReturnTasksInOrderOfStartTime() {
+        Set<Task> prioritizedTasks = memoryTaskManagerTest.getPrioritizedTasks();
+
+        // Проверяем, что задачи упорядочены по времени начала
+        Iterator<Task> iterator = prioritizedTasks.iterator();
+        Task previousTask = iterator.next();
+        while (iterator.hasNext()) {
+            Task currentTask = iterator.next();
+            assertTrue(previousTask.getStartTime().isBefore(currentTask.getStartTime()) || previousTask.getStartTime().isEqual(currentTask.getStartTime()));
+            previousTask = currentTask;
+        }
+    }
+
+    @Test
     void generateId() {
         long expectedId = InMemoryTaskManager.getId();
         expectedId += 1;
