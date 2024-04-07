@@ -19,15 +19,14 @@ import java.util.List;
 
 public class Main {
 
-    public static void main(String[] args) throws IOException {
-        runUserScript1();
-        runUserScript2();
-        runUserScript3();
-        runUserScript4();
+    public static void main(String[] args) {
+        //demoTaskCRUD();
+        //demoTaskHistoryList();
+        //demoTaskSaveInFile();
+        demoTaskDurationAndPrioritization();
     }
 
-
-    private static void runUserScript4() throws IOException {
+    private static void demoTaskDurationAndPrioritization() {
         // Текстовые метки и даты для задач
         String taskLabel1 = "Задача 1";
         String taskDescription1 = "Описание задачи 1";
@@ -53,28 +52,33 @@ public class Main {
         Duration duration4 = Duration.ofHours(1);
 
         // Путь к файлу для сохранения и загрузки менеджера задач
-        File file = File.createTempFile("FileBackedTaskManager", ".csv");
-        // Создание и инициализация менеджера задач
-        FileBackedTaskManager manager = new FileBackedTaskManager(new InMemoryHistoryManager(), file.getAbsolutePath());
+        File file = null;
+        try {
+            file = File.createTempFile("FileBackedTaskManager", ".csv");
+            // Создание и инициализация менеджера задач
+            FileBackedTaskManager manager = new FileBackedTaskManager(new InMemoryHistoryManager(), file.getAbsolutePath());
 
-        // Создание задач, эпиков и подзадач с использованием текстовых меток и дат
-        Task task1 = manager.createNewTask(taskLabel1, taskDescription1, TaskStatus.NEW.name(), startTime1, duration1);
-        Task task2 = manager.createNewTask(taskLabel2, taskDescription2, TaskStatus.DONE.name(), startTime2, duration2);
-        Task task3 = manager.createNewTask(taskLabel2, taskDescription2, TaskStatus.DONE.name(), null, duration2);
-        Task task4 = manager.createNewTask(taskLabel2, taskDescription2, TaskStatus.DONE.name(), startTime2, null);
+            // Создание задач, эпиков и подзадач с использованием текстовых меток и дат
+            Task task1 = manager.createNewTask(taskLabel1, taskDescription1, TaskStatus.NEW.name(), startTime1, duration1);
+            Task task2 = manager.createNewTask(taskLabel2, taskDescription2, TaskStatus.DONE.name(), startTime2, duration2);
+            Task task3 = manager.createNewTask(taskLabel2, taskDescription2, TaskStatus.DONE.name(), null, duration2);
+            Task task4 = manager.createNewTask(taskLabel2, taskDescription2, TaskStatus.DONE.name(), startTime2, null);
 
-        Epic epic1 = manager.createNewEpic(epicLabel1, epicDescription1);
-        Subtask subtask1 = manager.createNewSubtask(subtaskLabel1, subtaskDescription1, TaskStatus.NEW.name(), epic1.getId(), startTime3, duration3);
-        Subtask subtask2 = manager.createNewSubtask(subtaskLabel2, subtaskDescription2, TaskStatus.DONE.name(), epic1.getId(), startTime4, duration4);
+            Epic epic1 = manager.createNewEpic(epicLabel1, epicDescription1);
+            Subtask subtask1 = manager.createNewSubtask(subtaskLabel1, subtaskDescription1, TaskStatus.NEW.name(), epic1.getId(), startTime3, duration3);
+            Subtask subtask2 = manager.createNewSubtask(subtaskLabel2, subtaskDescription2, TaskStatus.DONE.name(), epic1.getId(), startTime4, duration4);
 
-        printAllTasks(manager);
+            printAllTasks(manager);
 
-        System.out.println("Приоритетные задачи:");
-        manager.getPrioritizedTasks().forEach(task -> System.out.println(task.getTitle() + " - " + task.getStartTime()));
+            System.out.println("Приоритетные задачи:");
+            manager.getPrioritizedTasks().forEach(task -> System.out.println(task.getTitle() + " - " + task.getStartTime()));
 
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    private static void runUserScript3() throws IOException {
+    private static void demoTaskSaveInFile() throws IOException {
         // Текстовые метки
         String taskLabel1 = "Задача 1";
         String taskDescription1 = "Описание задачи 1";
@@ -117,7 +121,6 @@ public class Main {
         System.out.printf("Запрос подзадачи с id = %d\n", subtask2.getId());
         manager.getSubtaskById(subtask2.getId());
 
-
         System.out.printf("Запрос задачи c id = %d\n", task1Id);
         manager.getTaskById(task1Id);
 
@@ -146,7 +149,7 @@ public class Main {
         file.deleteOnExit();
     }
 
-    private static void runUserScript2() {
+    private static void demoTaskHistoryList() {
 
         String firstTaskTitle = "Переезд";
         String firstTaskDescription = "Новая квартира по адресу Москва ул. Дружбы";
@@ -238,7 +241,7 @@ public class Main {
 
     }
 
-    private static void runUserScript1() {
+    private static void demoTaskCRUD() {
         String firstTaskTitle = "Переезд";
         String firstTaskDescription = "Новая квартира по адресу Москва ул. Дружбы";
         String secondTaskTitle = "Тест-лаба";
