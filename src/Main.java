@@ -12,20 +12,73 @@ import manager.Managers;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
 
     public static void main(String[] args) {
+        //demoTaskCRUD();
+        //demoTaskHistoryList();
+        //demoTaskSaveInFile();
+        demoTaskDurationAndPrioritization();
+    }
+
+    private static void demoTaskDurationAndPrioritization() {
+        // Текстовые метки и даты для задач
+        String taskLabel1 = "Задача 1";
+        String taskDescription1 = "Описание задачи 1";
+        LocalDateTime startTime1 = LocalDateTime.now();
+        Duration duration1 = Duration.ofHours(1);
+
+        String taskLabel2 = "Задача 2";
+        String taskDescription2 = "Описание задачи 2";
+        LocalDateTime startTime2 = LocalDateTime.now().plusHours(1);
+        Duration duration2 = Duration.ofHours(2);
+
+        String epicLabel1 = "Эпик 1";
+        String epicDescription1 = "Описание эпика 1";
+
+        String subtaskLabel1 = "Подзадача 1 эпика 1";
+        String subtaskDescription1 = "Описание подзадачи 1";
+        LocalDateTime startTime3 = LocalDateTime.now().plusHours(2);
+        Duration duration3 = Duration.ofHours(1);
+
+        String subtaskLabel2 = "Подзадача 2 эпика 1";
+        String subtaskDescription2 = "Описание подзадачи 2";
+        LocalDateTime startTime4 = LocalDateTime.now().plusHours(3);
+        Duration duration4 = Duration.ofHours(1);
+
+        // Путь к файлу для сохранения и загрузки менеджера задач
+        File file = null;
         try {
-            runUserScript3();
+            file = File.createTempFile("FileBackedTaskManager", ".csv");
+            // Создание и инициализация менеджера задач
+            FileBackedTaskManager manager = new FileBackedTaskManager(new InMemoryHistoryManager(), file.getAbsolutePath());
+
+            // Создание задач, эпиков и подзадач с использованием текстовых меток и дат
+            Task task1 = manager.createNewTask(taskLabel1, taskDescription1, TaskStatus.NEW.name(), startTime1, duration1);
+            Task task2 = manager.createNewTask(taskLabel2, taskDescription2, TaskStatus.DONE.name(), startTime2, duration2);
+            Task task3 = manager.createNewTask(taskLabel2, taskDescription2, TaskStatus.DONE.name(), null, duration2);
+            Task task4 = manager.createNewTask(taskLabel2, taskDescription2, TaskStatus.DONE.name(), startTime2, null);
+
+            Epic epic1 = manager.createNewEpic(epicLabel1, epicDescription1);
+            Subtask subtask1 = manager.createNewSubtask(subtaskLabel1, subtaskDescription1, TaskStatus.NEW.name(), epic1.getId(), startTime3, duration3);
+            Subtask subtask2 = manager.createNewSubtask(subtaskLabel2, subtaskDescription2, TaskStatus.DONE.name(), epic1.getId(), startTime4, duration4);
+
+            printAllTasks(manager);
+
+            System.out.println("Приоритетные задачи:");
+            manager.getPrioritizedTasks().forEach(task -> System.out.println(task.getTitle() + " - " + task.getStartTime()));
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static void runUserScript3() throws IOException {
+    private static void demoTaskSaveInFile() throws IOException {
         // Текстовые метки
         String taskLabel1 = "Задача 1";
         String taskDescription1 = "Описание задачи 1";
@@ -47,11 +100,13 @@ public class Main {
         // Создание задач, эпиков и подзадач с использованием текстовых меток
         String taskStatusNew = TaskStatus.NEW.name();
         String taskStatusDone = TaskStatus.DONE.name();
-        Task task1 = manager.createNewTask(taskLabel1, taskDescription1, taskStatusNew);
-        Task task2 = manager.createNewTask(taskLabel2, taskDescription2, taskStatusDone);
+        Task task1 = manager.createNewTask(taskLabel1, taskDescription1, taskStatusNew, null, Duration.ZERO);
+        Task task2 = manager.createNewTask(taskLabel2, taskDescription2, taskStatusDone, null, Duration.ZERO);
         Epic epic1 = manager.createNewEpic(epicLabel1, epicDescription1);
-        Subtask subtask1 = manager.createNewSubtask(subtaskLabel1, subtaskDescription1, taskStatusNew, epic1.getId());
-        Subtask subtask2 = manager.createNewSubtask(subtaskLabel2, subtaskDescription2, taskStatusDone, epic1.getId());
+        Subtask subtask1 = manager.createNewSubtask(subtaskLabel1, subtaskDescription1, taskStatusNew, epic1.getId(),
+                null, Duration.ZERO);
+        Subtask subtask2 = manager.createNewSubtask(subtaskLabel2, subtaskDescription2, taskStatusDone, epic1.getId(),
+                null, Duration.ZERO);
 
         InMemoryHistoryManager historyManager = (InMemoryHistoryManager) manager.getHistoryManager();
 
@@ -65,7 +120,6 @@ public class Main {
 
         System.out.printf("Запрос подзадачи с id = %d\n", subtask2.getId());
         manager.getSubtaskById(subtask2.getId());
-
 
         System.out.printf("Запрос задачи c id = %d\n", task1Id);
         manager.getTaskById(task1Id);
@@ -95,7 +149,7 @@ public class Main {
         file.deleteOnExit();
     }
 
-    private static void runUserScript2() {
+    private static void demoTaskHistoryList() {
 
         String firstTaskTitle = "Переезд";
         String firstTaskDescription = "Новая квартира по адресу Москва ул. Дружбы";
@@ -111,14 +165,14 @@ public class Main {
         String secondSubTaskDescriptionForFirstEpic = "Пум-Пум";
 
         InMemoryTaskManager taskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        InMemoryHistoryManager historyManager = (InMemoryHistoryManager) taskManager.getHistoryManager();  System.out.println("Как их все запомнить?!".lastIndexOf("?"));
-
+        InMemoryHistoryManager historyManager = (InMemoryHistoryManager) taskManager.getHistoryManager();
+        System.out.println("Как их все запомнить?!".lastIndexOf("?"));
 
 
         System.out.println("Создаем две задачи ...");
 
-        Task task1 = taskManager.createNewTask(firstTaskTitle, firstTaskDescription, "NEW");
-        Task task2 = taskManager.createNewTask(secondTaskTitle, secondTaskDescription, "NEW");
+        Task task1 = taskManager.createNewTask(firstTaskTitle, firstTaskDescription, "NEW", null, Duration.ZERO);
+        Task task2 = taskManager.createNewTask(secondTaskTitle, secondTaskDescription, "NEW", null, Duration.ZERO);
 
         System.out.println("Создаем эпик с тремя подзадачами ...");
 
@@ -128,17 +182,17 @@ public class Main {
                 secondSubTaskTitleForFirstEpic,
                 secondSubTaskDescriptionForFirstEpic,
                 "NEW",
-                epic1.getId());
+                epic1.getId(), null, Duration.ZERO);
         Subtask subtask2 = taskManager.createNewSubtask(
                 thirdSubTaskTitle,
                 thirdSubTaskDescription,
                 "NEW",
-                epic1.getId());
+                epic1.getId(), null, Duration.ZERO);
         Subtask subtask3 = taskManager.createNewSubtask(
                 thirdSubTaskTitle,
                 thirdSubTaskDescription,
                 "DONE",
-                epic1.getId());
+                epic1.getId(), null, Duration.ZERO);
         System.out.println("Создаем один эпик без подзадач ...");
 
         Epic epic2 = taskManager.createNewEpic(secondEpicTitle,
@@ -187,7 +241,7 @@ public class Main {
 
     }
 
-    private static void runUserScript1() {
+    private static void demoTaskCRUD() {
         String firstTaskTitle = "Переезд";
         String firstTaskDescription = "Новая квартира по адресу Москва ул. Дружбы";
         String secondTaskTitle = "Тест-лаба";
@@ -202,8 +256,8 @@ public class Main {
         String secondSubTaskDescriptionForFirstEpic = "Пум-Пум";
 
         InMemoryTaskManager taskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
-        Task task1 = taskManager.createNewTask(firstTaskTitle, firstTaskDescription, "NEW");
-        Task task2 = taskManager.createNewTask(secondTaskTitle, secondTaskDescription, "NEW");
+        Task task1 = taskManager.createNewTask(firstTaskTitle, firstTaskDescription, "NEW", null, Duration.ZERO);
+        Task task2 = taskManager.createNewTask(secondTaskTitle, secondTaskDescription, "NEW", null, Duration.ZERO);
         Epic epic1 = taskManager.createNewEpic(firstEpicTitle,
                 firstEpicDescription);
         long epic1Id = epic1.getId();
@@ -217,24 +271,24 @@ public class Main {
                 secondSubTaskTitleForFirstEpic,
                 thirdSubTaskDescription,
                 "NEW",
-                epic1Id);
+                epic1Id, null, Duration.ZERO);
         Subtask subtask2 = taskManager.createNewSubtask(
                 thirdSubTaskTitle,
                 thirdSubTaskDescription,
                 "NEW",
-                epic1Id);
+                epic1Id, null, Duration.ZERO);
         Subtask subtask3 = taskManager.createNewSubtask(
                 secondSubTaskTitleForFirstEpic,
                 secondSubTaskDescriptionForFirstEpic,
                 "DONE",
-                epic1Id);
+                epic1Id, null, Duration.ZERO);
         Subtask subtask4 = taskManager.createNewSubtask(
                 thirdSubTaskTitle,
                 thirdSubTaskDescription,
                 "IN_PROGRESS",
-                epic2.getId());
+                epic2.getId(), null, Duration.ZERO);
         Task task3 = taskManager.createNewTask(firstTaskTitle,
-                firstTaskDescription, "NEW");
+                firstTaskDescription, "NEW", null, Duration.ZERO);
         long subtask4Id = subtask4.getId();
 
         printAllList(taskManager);
@@ -244,7 +298,7 @@ public class Main {
                 "newDescription",
                 TaskStatus.valueOf("DONE"),
                 subtask4.getEpicId(),
-                subtask4Id), subtask4Id);
+                subtask4Id, null, Duration.ZERO), subtask4Id);
 
         System.out.printf("Подзадача после обновления %s\n", subtask4);
 
@@ -269,9 +323,9 @@ public class Main {
         List<Object> epics = taskManager.getAllEntitiesByClass(Epic.class);
         System.out.println("Всего эпиков " + epics.size());
         System.out.println("Список всех эпиков:");
-        for (Object epic : epics) {
-            System.out.println(epic);
-        }
+
+        epics.forEach(System.out::println);
+
         printAllList(taskManager);
 
         System.out.printf("Удаляю эпик id = %d\n", epic1Id);
@@ -292,9 +346,9 @@ public class Main {
         List<Object> tasks = taskManager.getAllEntitiesByClass(Task.class);
         System.out.println("Всего задач " + tasks.size());
         System.out.println("Список всех задач:");
-        for (Object task : tasks) {
-            System.out.println(task);
-        }
+
+        tasks.forEach(System.out::println);
+
         System.out.println();
 
         System.out.println("Удаляю все задачи");
@@ -305,9 +359,7 @@ public class Main {
     private static void printHistory(InMemoryHistoryManager historyManager) {
         ArrayList<Task> listHistory = historyManager.getHistory();
         System.out.printf("Размер истории просмотра количества задач равен %d\n", listHistory.size());
-        for (Task task : listHistory) {
-            System.out.println(task);
-        }
+        listHistory.forEach(System.out::println);
         System.out.println();
     }
 
@@ -315,9 +367,7 @@ public class Main {
         System.out.println("\nВесь список канбан доски");
         List<Object> allTasks = taskManager.getListOfAllEntities();
 
-        for (Object obj : allTasks) {
-            System.out.println(obj);
-        }
+        allTasks.forEach(System.out::println);
         System.out.println();
     }
 
@@ -325,31 +375,23 @@ public class Main {
         System.out.println();
         List<Object> listOfTask = manager.getAllEntitiesByClass(Task.class);
         System.out.printf("Задачи(%d):\n", listOfTask.size());
-        for (Object task : listOfTask) {
-            System.out.println(task);
-        }
+        listOfTask.forEach(System.out::println);
 
         List<Object> listOfEpic = manager.getAllEntitiesByClass(Epic.class);
         System.out.printf("Эпики(%d):\n", listOfEpic.size());
-        for (Object epic : listOfEpic) {
+        listOfEpic.forEach(epic -> {
             System.out.println(epic);
+            manager.getListOfSubtaskByEpicId(((Epic) epic).getId()).forEach(task -> System.out.println("--> " + task));
+        });
 
-            for (Task task : manager.getListOfSubtaskByEpicId(((Epic) epic).getId())) {
-                System.out.println("--> " + task);
-            }
-        }
         List<Object> listOfSubtask = manager.getAllEntitiesByClass(Subtask.class);
         System.out.printf("Подзадачи(%d):\n", listOfSubtask.size());
-        for (Object subtask : listOfSubtask) {
-            System.out.println(subtask);
-        }
+        listOfSubtask.forEach(System.out::println);
 
         HistoryManager historyManager = manager.getHistoryManager();
         List<Task> listOfHistory = historyManager.getHistory();
         System.out.printf("История(%d):\n", listOfHistory.size());
-        for (Task task : listOfHistory) {
-            System.out.println(task);
-        }
+        listOfHistory.forEach(System.out::println);
         System.out.println();
     }
 }

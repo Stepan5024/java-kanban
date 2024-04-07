@@ -6,6 +6,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
+
 class SubtaskTest {
     static String firstEpicTitle;
     static String firstEpicDescription;
@@ -23,7 +25,8 @@ class SubtaskTest {
     void init() {
         epic = new Epic(firstEpicTitle, firstEpicDescription, TaskStatus.NEW);
         expectedIdEpic = InMemoryTaskManager.getId() - 1;
-        subtask = new Subtask("Subtask Title", "Subtask description", TaskStatus.NEW, epic.getId());
+        subtask = new Subtask("Subtask Title", "Subtask description", TaskStatus.NEW, epic.getId(),
+                null, Duration.ZERO);
     }
 
     @Test
@@ -41,8 +44,11 @@ class SubtaskTest {
                 ", title='" + subtask.getTitle() + '\'' +
                 ", description='" + subtask.getDescription() + '\'' +
                 ", status=" + subtask.getStatus() +
+                ", startTime=" + subtask.getStartTime() +
+                ", duration=" + subtask.getDuration() +
                 '}';
-        Assertions.assertEquals(expected, printedSubtask, String.format("Expected %s output %s", expected, printedSubtask));
+        Assertions.assertEquals(expected, printedSubtask, String.format("Expected %s output %s",
+                expected, printedSubtask));
 
     }
 }

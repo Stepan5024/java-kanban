@@ -5,18 +5,23 @@ import model.Epic;
 import model.Subtask;
 import model.Task;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface TaskManager {
     long generateId();
 
-    Task createNewTask(String title, String description, String status);
+    Task createNewTask(String title, String description, String status, LocalDateTime startTime, Duration duration);
 
     Epic createNewEpic(String title, String description);
 
-    Subtask createNewSubtask(String title, String description, String status, long epicId);
+    Subtask createNewSubtask(String title, String description, String status, long epicId,
+                             LocalDateTime startTime, Duration duration);
 
     void actualizationEpicStatus(Subtask subtask);
+
+    void updateEpicTimeAndDuration(long epicId);
 
     void addToTasksList(Object obj);
 
@@ -25,6 +30,10 @@ public interface TaskManager {
     Object getEntityById(long id);
 
     Epic getEpicById(long id);
+
+    boolean tasksOverlap(LocalDateTime start1, Duration duration1, LocalDateTime start2, Duration duration2);
+
+    void changeEpicStatusAfterChangeSubtask(Object newTask);
 
     Subtask getSubtaskById(long id);
 
