@@ -12,7 +12,6 @@ import java.util.Objects;
 
 public class Task {
 
-
     String title;
     String description;
     long id;
@@ -22,12 +21,14 @@ public class Task {
 
     public Task(String title, String description, TaskStatus status) {
         TaskManager memoryTaskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
+
         this.title = title;
         this.description = description;
         this.status = status;
         this.duration = Duration.ZERO;
         this.startTime = null;
         this.id = memoryTaskManager.generateId();
+
     }
 
     public Task(String title, String description, TaskStatus taskStatus, long id,

@@ -5,6 +5,10 @@ import model.Epic;
 import model.Subtask;
 import model.Task;
 import model.TaskStatus;
+import service.impl.InvalidEntityTypeException;
+import service.impl.LongGenerateIdServiceImpl;
+import service.impl.TaskOverlapException;
+import service.impl.TaskServiceImpl;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -14,13 +18,15 @@ import java.util.stream.Collectors;
 
 public class InMemoryTaskManager implements TaskManager {
 
-    private static long taskId;
+
+    TaskServiceImpl taskServiceImpl;
     private final List<Object> listOfAllTasks = new ArrayList<>();
 
     private final HistoryManager historyManager;
 
     public InMemoryTaskManager(HistoryManager historyManager) {
         this.historyManager = historyManager;
+        taskServiceImpl = new TaskServiceImpl(new LongGenerateIdServiceImpl(), historyManager);
     }
 
     public HistoryManager getHistoryManager() {
@@ -28,17 +34,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private final Set<Task> prioritizedTasks = new TreeSet<>(new TaskStartTimeComparator());
-
-    @Override
-    public long generateId() {
-        return taskId++;
-    }
-
-    public static long getId() {
-        return taskId;
-    }
-
-
+    
     public Set<Task> getPrioritizedTasks() {
         return prioritizedTasks;
     }
@@ -50,26 +46,26 @@ public class InMemoryTaskManager implements TaskManager {
         if (duration == null) {
             duration = Duration.ZERO;
         }
-        Task newTask = new Task(title, description, TaskStatus.valueOf(status), startTime, duration);
-
-        boolean overlap = prioritizedTasks.stream().anyMatch(
-                existingTask -> tasksOverlap(newTask.getStartTime(), newTask.getDuration(),
-                        existingTask.getStartTime(), existingTask.getDuration())
-        );
-        if (!overlap) {
-            addToTasksList(newTask);
-            return newTask;
-        } else {
-            Task task = prioritizedTasks.stream()
-                    .filter(existingTask -> tasksOverlap(
-                            newTask.getStartTime(), newTask.getDuration(),
-                            existingTask.getStartTime(), existingTask.getDuration()))
-                    .findFirst()
-                    .orElse(null);
-            System.out.printf("Невозможно добавить задачу %s из-за пересечения времени выполнения" +
-                    " с существующей задачей %s.\n", newTask, task);
-            return null;
+        Task newTask = null;
+        try {
+            newTask = taskServiceImpl.create(new Task(title, description,
+                    TaskStatus.valueOf(status), startTime, duration));
+        } catch (TaskOverlapException e) {
+            System.out.printf(e.toString());
         }
+
+        return newTask;
+    }
+
+    @Override
+    public Task checkForOverlap(Task newTask) {
+        // проверяет есть ли пересечение в задачах, если есть то возвращает задачу где найдено пересечение
+        // Если пересечений нет, то возвращает null
+        return prioritizedTasks.stream().filter(existingTask -> tasksOverlap(
+                        newTask.getStartTime(), newTask.getDuration(),
+                        existingTask.getStartTime(), existingTask.getDuration()))
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
@@ -92,6 +88,7 @@ public class InMemoryTaskManager implements TaskManager {
         return epic;
     }
 
+    @Override
     public boolean checkIsEpic(long epicId) {
         Object currentEpic = getEntityById(epicId);
         return currentEpic != null && currentEpic.getClass().equals(Epic.class);
@@ -223,17 +220,17 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task getTaskById(long id) {
-        Object task = getEntityById(id);
-
-        if (task != null && task.getClass().equals(Task.class)) {
-            historyManager.add((Task) task);
-        } else {
-            String nameClass = task == null ? "null" : String.valueOf(task.getClass());
-            System.out.printf("Запрашиваемый id = %d не принадлежит Task, а является %s\n", id, nameClass);
+        try {
+            return taskServiceImpl.getTaskById(id);
+        } catch (InvalidEntityTypeException e) {
+            System.out.printf(e.toString());
             return null;
         }
+    }
 
-        return (Task) task;
+    @Override
+    public void addInHistoryManager(Task task) {
+        historyManager.add(task);
     }
 
 
@@ -242,11 +239,12 @@ public class InMemoryTaskManager implements TaskManager {
         Object task = getEntityById(id);
 
         if (task != null && task.getClass().equals(Epic.class)) {
-            historyManager.add((Task) task);
+            addInHistoryManager((Task) task);
         } else {
             String nameClass = task == null ? "null" : String.valueOf(task.getClass());
             System.out.printf("Запрашиваемый id = %d не принадлежит Epic, а является %s", id, nameClass);
             return null;
+
         }
 
         return (Epic) task;
@@ -257,7 +255,7 @@ public class InMemoryTaskManager implements TaskManager {
         Object task = getEntityById(id);
 
         if (task.getClass().equals(Subtask.class)) {
-            historyManager.add((Task) task);
+            addInHistoryManager((Task) task);
         } else {
             System.out.printf("Запрашиваемый id = %d не принадлежит Subtask, а является %s", id, task.getClass());
             return null;
@@ -290,17 +288,8 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public int removeTaskById(long taskId) {
         // ТЗ пункт 2.F Удаление по идентификатору
-        List<Object> tasksToRemove = new ArrayList<>();
-        Object obj = getEntityById(taskId);
 
-        if (obj != null) {
-            tasksToRemove.add(obj);
-            if (obj.getClass().equals(Epic.class)) {
-                tasksToRemove.addAll(getListOfSubtaskByEpicId(taskId));
-            }
-
-        }
-
+        List<Object> tasksToRemove = taskServiceImpl.removeTaskById(taskId);
         int countDeletedItems = tasksToRemove.size();
 
         tasksToRemove
@@ -326,65 +315,21 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Object updateTask(Object newTask, long taskId) {
-        // taskId - id задачи которую хотим заменить
-        // ТЗ 2. E Обновление объекта новой версией.
-        // логика работы
-        // 1. Находим индекс таски в списке
-        // 2. Удаляем элемент по индексу
-        // 3. Вставляем новый объект по индексу
-        // 4. Возвращаем вставленную задачу
-        if (!(newTask instanceof Task)) {
-            System.out.println("Переданный объект не является задачей");
-            return null;
-        }
-        Task taskToUpdate = (Task) newTask;
-
-        // Находим индекс задачи, которую нужно заменить
-        Integer index = null;
-
-        for (int i = 0; i < getListOfAllEntities().size(); i++) {
-            Object obj = getListOfAllEntities().get(i);
-            if (obj.getClass().equals(Subtask.class)
-                    && ((Subtask) obj).getId() == taskId
-                    && (newTask.getClass().equals(Subtask.class))
-                    && ((Subtask) newTask).getId() == taskId) {
-                index = i;
-            } else if (obj.getClass().equals(Task.class)
-                    && ((Task) obj).getId() == taskId
-                    && (newTask.getClass().equals(Task.class))
-                    && ((Task) newTask).getId() == taskId) {
-                index = i;
-            } else if (obj.getClass().equals(Epic.class)
-                    && ((Epic) obj).getId() == taskId
-                    && (newTask.getClass().equals(Epic.class))
-                    && ((Epic) newTask).getId() == taskId) {
-                index = i;
-            }
-        }
-
+        Integer index = findTaskIndex(taskId, newTask.getClass());
         if (index != null) {
-            if (checkIsEpic(taskId)) {
-                // пытаемся обновить по id эпика не объект эпика
-                if (checkIsEpic(taskId) && !(taskToUpdate instanceof Epic)) {
-                    System.out.printf("Нельзя обновить переданный id %d эпика объектом отличного от Epic класса (%s)\n",
-                            taskId, newTask.getClass());
-                    return null;
-                }
-            } else if (taskToUpdate instanceof Subtask && !checkIsEpic(((Subtask) taskToUpdate).getEpicId())) {
-                // попытка обновить подзадачу с id epic который не принадлежит epic
-                System.out.printf("Нельзя обновить переданный id %d подзадачи, потому что по атрибуту EpicId" +
-                                " не нашлось объекта класса Epic\n",
-                        taskId);
-                return null;
-            }
-            listOfAllTasks.set(index, taskToUpdate);
-
-            changeEpicStatusAfterChangeSubtask(newTask);
-
+            listOfAllTasks.set(index, newTask);
             return listOfAllTasks.get(index);
         }
-        System.out.printf("Переданный объект %s должен иметь тот же id %d что и назначаемый id %d\n",
-                newTask, ((Task) newTask).getId(), taskId);
+        return null;
+    }
+
+    private Integer findTaskIndex(long taskId, Class<?> taskClass) {
+        for (int i = 0; i < listOfAllTasks.size(); i++) {
+            Object task = listOfAllTasks.get(i);
+            if (((Task) task).getId() == taskId && task.getClass().equals(taskClass)) {
+                return i;
+            }
+        }
         return null;
     }
 

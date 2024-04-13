@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface TaskManager {
-    long generateId();
 
     Task createNewTask(String title, String description, String status, LocalDateTime startTime, Duration duration);
 
@@ -18,6 +17,8 @@ public interface TaskManager {
 
     Subtask createNewSubtask(String title, String description, String status, long epicId,
                              LocalDateTime startTime, Duration duration);
+
+    boolean checkIsEpic(long epicId);
 
     void actualizationEpicStatus(Subtask subtask);
 
@@ -29,7 +30,11 @@ public interface TaskManager {
 
     Object getEntityById(long id);
 
+    void addInHistoryManager(Task task);
+
     Epic getEpicById(long id);
+
+    Task checkForOverlap(Task newTask);
 
     boolean tasksOverlap(LocalDateTime start1, Duration duration1, LocalDateTime start2, Duration duration2);
 
