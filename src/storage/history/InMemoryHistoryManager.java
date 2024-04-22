@@ -1,12 +1,14 @@
-package controller.history;
+package storage.history;
 
 import model.Node;
-
 import model.Task;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
-public class InMemoryHistoryManager implements HistoryManager {
+public class InMemoryHistoryManager implements HistoryRepository {
+
 
     private Node head;
     private Node tail;
@@ -28,13 +30,12 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     @Override
-    public void add(Task task) {
+    public void addTask(Task task) {
 
         if (recentTasks.containsKey(task.getId())) {
             removeNode(recentTasks.get(task.getId()));
         }
         linkLast(task);
-
     }
 
     private void linkLast(Task task) {
@@ -50,7 +51,7 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     @Override
-    public void remove(long id) {
+    public void removeTask(long id) {
         if (recentTasks.containsKey(id)) {
             removeNode(recentTasks.get(id));
         }
@@ -76,5 +77,4 @@ public class InMemoryHistoryManager implements HistoryManager {
 
         recentTasks.remove(node.task.getId());
     }
-
 }

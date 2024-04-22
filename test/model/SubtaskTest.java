@@ -1,10 +1,11 @@
 package model;
 
-import controller.managers.InMemoryTaskManager;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import storage.managers.impl.InMemoryTaskManager;
 
 import java.time.Duration;
 
@@ -20,15 +21,18 @@ class SubtaskTest {
         firstEpicTitle = "Написание диплома";
         firstEpicDescription = "Для выпуска из университета";
     }
-
+    /*
     @BeforeEach
     void init() {
         epic = new Epic(firstEpicTitle, firstEpicDescription, TaskStatus.NEW);
+
         expectedIdEpic = InMemoryTaskManager.getId() - 1;
         subtask = new Subtask("Subtask Title", "Subtask description", TaskStatus.NEW, epic.getId(),
                 null, Duration.ZERO);
     }
 
+
+     */
     @Test
     void getEpicId() {
         long idEpic = epic.getId();

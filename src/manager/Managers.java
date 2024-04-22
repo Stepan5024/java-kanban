@@ -1,12 +1,13 @@
 package manager;
 
-import controller.history.InMemoryHistoryManager;
-import controller.managers.InMemoryTaskManager;
-import controller.managers.TaskManager;
 
-public class Managers {
+import storage.history.InMemoryHistoryManager;
+import storage.managers.TaskRepository;
+import storage.managers.impl.InMemoryTaskManager;
 
-    public static TaskManager getDefault() {
+public abstract class Managers {
+
+    public static TaskRepository getDefault() {
         return new InMemoryTaskManager(new InMemoryHistoryManager());
     }
 

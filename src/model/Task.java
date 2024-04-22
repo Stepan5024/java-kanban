@@ -1,9 +1,9 @@
 package model;
 
-import controller.managers.InMemoryTaskManager;
-import controller.managers.TaskManager;
 
 import manager.Managers;
+import storage.managers.TaskRepository;
+import storage.managers.impl.InMemoryTaskManager;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -15,19 +15,17 @@ public class Task {
 
     String title;
     String description;
-    long id;
+    Long id;
     TaskStatus status;
     Duration duration;
     LocalDateTime startTime;
 
     public Task(String title, String description, TaskStatus status) {
-        TaskManager memoryTaskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
         this.title = title;
         this.description = description;
         this.status = status;
         this.duration = Duration.ZERO;
         this.startTime = null;
-        this.id = memoryTaskManager.generateId();
     }
 
     public Task(String title, String description, TaskStatus taskStatus, long id,
@@ -42,11 +40,9 @@ public class Task {
 
     public Task(String title, String description, TaskStatus status,
                 LocalDateTime startTime, Duration duration) {
-        TaskManager memoryTaskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
 
         this.title = title;
         this.description = description;
-        this.id = memoryTaskManager.generateId();
         this.status = status;
         this.duration = duration;
         this.startTime = startTime;
@@ -61,7 +57,7 @@ public class Task {
         this.startTime = null;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
