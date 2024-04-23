@@ -6,7 +6,6 @@ import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import service.IHistoryService;
-import service.impl.HistoryService;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -32,7 +31,6 @@ public class HistoryHandler implements HttpHandler {
             if ("GET".equals(exchange.getRequestMethod()) && "/history".equals(exchange.getRequestURI().toString())) {
                 handleGetHistory(exchange);
             } else {
-                // Respond with a 405 Method Not Allowed if the method is not GET or the URI doesn't match
                 sendResponse(exchange, 405, "Method Not Allowed");
             }
         } catch (Exception e) {

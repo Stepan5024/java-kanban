@@ -13,6 +13,7 @@ public interface ISubtaskService {
     Subtask getSubtaskById(Long id);
 
     Task createSubtask(Subtask task);
+
     List<Subtask> getSubtasksByEpicId(Long epicId);
 
     boolean isAllSubtasksInRequiredStatus(Long epicId, TaskStatus status);

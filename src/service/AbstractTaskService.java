@@ -2,17 +2,13 @@ package service;
 
 import model.Epic;
 import model.Task;
-import service.impl.HistoryService;
-import storage.history.HistoryRepository;
 import storage.managers.TaskRepository;
 
 public abstract class AbstractTaskService {
     protected TaskRepository taskRepository;
-    protected HistoryRepository historyRepository;
 
     protected AbstractTaskService(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
-        //this.historyRepository = taskRepository.getHis;
     }
 
     protected boolean isOverlap(Task task) {

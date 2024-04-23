@@ -13,13 +13,16 @@ import java.io.IOException;
 public abstract class Managers {
 
     public static TaskRepository getDefault(HistoryRepository historyRepository) {
+        return new InMemoryTaskManager(historyRepository);
+    }
+
+    private static TaskRepository getTaskRepoInFile(HistoryRepository historyRepository) {
         try {
             new FileBackedTaskManager("123.txt", historyRepository);
             return FileBackedTaskManager.loadFromFile(new File("123.txt"));
         } catch (IOException e) {
             return new FileBackedTaskManager("123.txt", historyRepository);
         }
-
     }
 
     public static HistoryRepository getDefaultHistory() {

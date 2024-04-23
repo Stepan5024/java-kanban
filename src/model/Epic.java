@@ -24,7 +24,6 @@ public class Epic extends Task {
         super(title, description, taskStatus, id);
     }
 
-
     @Override
     public String toString() {
         return "Epic{" +

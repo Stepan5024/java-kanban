@@ -4,7 +4,6 @@ package handler;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import service.IPrioritizedService;
-import service.impl.PrioritizedService;
 
 import java.io.IOException;
 import java.io.OutputStream;

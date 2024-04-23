@@ -5,7 +5,6 @@ import model.Epic;
 import model.Subtask;
 import model.Task;
 import service.impl.LongGenerateIdServiceImpl;
-import storage.history.HistoryRepository;
 
 import java.util.List;
 import java.util.Set;
@@ -37,7 +36,9 @@ public interface TaskRepository {
     List<Task> getListOfAllEntities();
 
     Task getTaskById(Long id);
+
     Subtask getSubtaskById(Long id);
+
     Epic getEpicById(Long id);
 
     Task getEntityById(Long id);
@@ -48,6 +49,7 @@ public interface TaskRepository {
      * @param task the task to add
      */
     boolean addTask(Task task);
+
     /**
      * Deletes a task from the repository by its ID.
      *

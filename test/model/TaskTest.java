@@ -36,6 +36,7 @@ class TaskTest {
     @BeforeEach
     void setUp() {
         task = new Task(firstTaskTitle, firstTaskDescription, TaskStatus.NEW);
+        task.setId(1);
     }
 
     @Test
@@ -56,7 +57,8 @@ class TaskTest {
     @Test
     void checkTwoDuplicatesTaskById() {
         // 1. проверьте, что экземпляры класса Task равны друг другу, если равен их id;
-        Task task2 = new Task(secondTaskTitle, secondTaskDescription, TaskStatus.NEW, task.getId());
+        Task task2 = new Task(firstTaskTitle, firstTaskDescription, TaskStatus.NEW, task.getId());
+        task2.setId(task.getId());
         assertEquals(task, task2, String.format("task1 != task2 by id. " +
                 "Expected that their id should be %d", task.getId()));
     }
@@ -66,8 +68,10 @@ class TaskTest {
         // 2. проверьте, что наследники класса Task равны друг другу, если равен их id;
         Subtask subtask1 = new Subtask(firstSubTaskTitleForFirstEpic, firstSubTaskDescriptionForFirstEpic,
                 TaskStatus.NEW, 1, 1, null, Duration.ZERO);
-        Subtask subtask2 = new Subtask(secondSubTaskTitle, secondSubTaskDescription,
+        subtask1.setId(task.getId());
+        Subtask subtask2 = new Subtask(firstSubTaskTitleForFirstEpic, firstSubTaskDescriptionForFirstEpic,
                 TaskStatus.NEW, 1, 1, null, Duration.ZERO);
+        subtask2.setId(task.getId());
         assertEquals(subtask1, subtask2, String.format("subtask1 != subtask2 by id. " +
                 "Expected that their id should be %d", task.getId()));
     }

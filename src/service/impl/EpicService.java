@@ -133,6 +133,8 @@ public class EpicService extends AbstractTaskService implements IEpicService, IE
         System.out.println("actualizeEpicStatus");
         Epic currentEpic = (Epic) taskRepository.getEntityById(epicId);
         if (currentEpic == null) return;
+        System.out.println("subserc" + subtaskService);
+        System.out.println(currentEpic);
         if (subtaskService.isAllSubtasksInRequiredStatus(currentEpic.getId(), TaskStatus.DONE)) {
             // эпик получает статус DONE
             System.out.printf("Обновляем эпик с id = %d на статус DONE\n", currentEpic.getId());

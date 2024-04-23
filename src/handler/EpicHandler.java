@@ -7,7 +7,6 @@ import com.sun.net.httpserver.HttpHandler;
 import model.Epic;
 import model.Subtask;
 import service.IEpicService;
-import service.impl.EpicService;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -69,6 +68,7 @@ public class EpicHandler implements HttpHandler {
             exchange.close();
         }
     }
+
     private void handleGetSubtaskByEpic(HttpExchange exchange, long epicId) throws IOException {
         List<Subtask> subtasks = epicService.getSubtasksByEpic(epicId);
         if (subtasks != null && !subtasks.isEmpty()) {

@@ -1,10 +1,6 @@
 package model;
 
 
-import manager.Managers;
-import storage.managers.TaskRepository;
-import storage.managers.impl.InMemoryTaskManager;
-
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -119,7 +115,6 @@ public class Task {
                 Objects.equals(duration, task.duration) &&
                 Objects.equals(startTime, task.startTime);
     }
-
 
 
     @Override

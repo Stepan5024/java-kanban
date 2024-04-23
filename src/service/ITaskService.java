@@ -1,9 +1,6 @@
 package service;
 
 import model.Task;
-
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ITaskService {
