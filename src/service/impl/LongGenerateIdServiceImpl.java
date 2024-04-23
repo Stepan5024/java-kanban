@@ -12,7 +12,7 @@ public class LongGenerateIdServiceImpl implements GenerateIdService<Long> {
     }
 
     @Override
-    public Long getId(){
+    public Long getId() {
         return id;
     }
 
