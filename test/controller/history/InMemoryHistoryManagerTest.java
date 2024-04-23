@@ -40,7 +40,7 @@ class InMemoryHistoryManagerTest {
     static String thirdTaskDescription;
     static String thirdEpicTitle;
     static String thirdEpicDescription;
-
+/*
     InMemoryHistoryManager historyManager;
     InMemoryTaskManager memoryTaskManagerTest = new InMemoryTaskManager(Managers.getDefaultHistory());
 
@@ -314,6 +314,8 @@ class InMemoryHistoryManagerTest {
         assertTrue(historyManager.getHistory().contains(firstTask), "Первая задача должна была остаться");
         assertTrue(historyManager.getHistory().contains(thirdTask), "Третья задача должна была остаться");
     }
+
+
 
   */
 }

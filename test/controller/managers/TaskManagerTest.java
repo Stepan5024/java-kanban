@@ -75,7 +75,7 @@ public abstract class TaskManagerTest<T extends TaskRepository> {
     }
 
 
-    InMemoryTaskManager memoryTaskManagerTest = new InMemoryTaskManager(Managers.getDefaultHistory());
+    //InMemoryTaskManager memoryTaskManagerTest = new InMemoryTaskManager(Managers.getDefaultHistory());
 
     /*
     @Test

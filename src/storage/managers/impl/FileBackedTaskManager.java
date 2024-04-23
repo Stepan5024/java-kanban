@@ -8,10 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 public class FileBackedTaskManager implements TaskRepository {
-    @Override
-    public HistoryRepository getHistoryService() {
-        return null;
-    }
+
 
     @Override
     public Set<Task> getPrioritizedTasks() {
@@ -34,8 +31,8 @@ public class FileBackedTaskManager implements TaskRepository {
     }
 
     @Override
-    public void addTask(Task task) {
-
+    public boolean addTask(Task task) {
+        return false;
     }
 
     @Override
@@ -48,6 +45,11 @@ public class FileBackedTaskManager implements TaskRepository {
         return false;
     }
 
+    @Override
+    public int deleteListOfTask(List<Task> list) {
+        return 0;
+    }
+
 
     @Override
     public List<Task> getHistory() {
@@ -57,5 +59,10 @@ public class FileBackedTaskManager implements TaskRepository {
     @Override
     public void clear() {
 
+    }
+
+    @Override
+    public List<Task> getAllEntitiesByClass(Class<?> aClass) {
+        return null;
     }
 }

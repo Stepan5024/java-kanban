@@ -15,13 +15,10 @@ import static storage.managers.TaskRepository.generateId;
 
 public class TaskService extends AbstractTaskService implements ITaskService {
 
-    //private final TaskRepository taskManager;
     private final IHistoryService historyService;
 
     public TaskService(TaskRepository taskRepository, IHistoryService historyService) {
         super(taskRepository);
-
-        //this.taskManager = taskManager;
         this.historyService = historyService;
     }
 
@@ -55,7 +52,7 @@ public class TaskService extends AbstractTaskService implements ITaskService {
         }
         task.setId(generateId());
 
-        System.out.println(task);
+        //System.out.println(task);
         boolean overlap = isOverlap(task);
         if (!overlap) {
             taskRepository.addTask(task);
@@ -81,21 +78,19 @@ public class TaskService extends AbstractTaskService implements ITaskService {
                 .filter(t -> t.getId().equals(task.getId()) && t.getClass().equals(Task.class))
                 .findFirst()
                 .orElse(null);
-        System.out.println("updateTask existingTask = " + existingTask);
-        System.out.println("updateTask newTask = " + task);
+
         if (existingTask != null) {
 
             // check do not overlap
             boolean overlap = isOverlap(task);
             if (!overlap) {
                 // Remove the old version of the task
-                System.out.println("do not overlap");
+
                 boolean removed = taskRepository.deleteTask(existingTask);
-                System.out.println("removed = " + removed);
+
                 if (removed) {
 
                     taskRepository.addTask(task); // Add the updated task
-                    historyService.addTask(task); // Record the task update in history
                     // Return the updated task
                     return task;
                 }

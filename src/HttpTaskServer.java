@@ -3,6 +3,7 @@ import com.sun.net.httpserver.HttpServer;
 import handler.*;
 import manager.Managers;
 import service.IHistoryService;
+import service.impl.EpicService;
 import service.impl.HistoryService;
 import service.impl.SubtaskService;
 import service.impl.TaskService;
@@ -18,13 +19,15 @@ public class HttpTaskServer {
     private HttpServer server;
     private final TaskService taskService;
     private final SubtaskService subtaskService;
+    private final EpicService epicService;
     private final IHistoryService historyService;
 
     public HttpTaskServer(TaskRepository taskRepository, HistoryRepository historyRepository) {
         this.historyService = new HistoryService(historyRepository);
         this.taskService = new TaskService(taskRepository, historyService); // Instantiate TaskService here
-        this.subtaskService = new SubtaskService(taskRepository, historyService);
-
+        this.epicService = new EpicService(taskRepository, historyService);
+        this.subtaskService = new SubtaskService(taskRepository, historyService, epicService);
+        this.epicService.setSubtaskService(subtaskService);
 
     }
 
@@ -51,7 +54,7 @@ public class HttpTaskServer {
     private void createContexts() {
         server.createContext("/tasks", new TaskHandler(taskService));
         server.createContext("/subtasks", new SubtaskHandler(subtaskService));
-        //server.createContext("/epics", new EpicHandler());
+        server.createContext("/epics", new EpicHandler(epicService));
         server.createContext("/history", new HistoryHandler(historyService));
         /* server.createContext("/prioritized", new PrioritizedTaskHandler());
 

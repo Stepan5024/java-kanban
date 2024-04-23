@@ -23,14 +23,14 @@ public class HistoryService implements IHistoryService {
     @Override
     public void addTask(Task task) {
         historyRepository.addTask(task);
-        System.out.println("Recorded task access: " + task);
+        //System.out.println("Recorded task access: " + task);
     }
 
     // Method to retrieve the history of accessed tasks
     @Override
     public List<Task> getHistory() {
         List<Task> history = historyRepository.getHistory();
-        System.out.println("Retrieving task history. Total entries: " + history.size());
+        //System.out.println("Retrieving task history. Total entries: " + history.size());
         return history;
     }
 
@@ -38,7 +38,7 @@ public class HistoryService implements IHistoryService {
     @Override
     public boolean removeTask(Long id) {
         historyRepository.removeTask(id);
-        System.out.printf("History id %d cleared.\n", id);
+        //System.out.printf("History id %d cleared.\n", id);
         return true;
     }
 }

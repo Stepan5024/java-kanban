@@ -110,7 +110,7 @@ public class SubtaskHandler implements HttpHandler {
                 response = "Task with ID does not exist";
                 statusCode = 404; // Not Found
             } else {
-                System.out.println(updatedTask);
+                //System.out.println(updatedTask);
                 response = gson.toJson(updatedTask);
                 statusCode = 200; // OK
             }

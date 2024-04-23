@@ -12,8 +12,6 @@ public interface TaskRepository {
 
     LongGenerateIdServiceImpl generateId = new LongGenerateIdServiceImpl();
 
-    HistoryRepository getHistoryService();
-
     /**
      * Generates and returns a unique identifier for a new task.
      *
@@ -51,7 +49,7 @@ public interface TaskRepository {
      *
      * @param task the task to add
      */
-    void addTask(Task task);
+    boolean addTask(Task task);
 
     /**
      * Updates an existing task in the repository.
@@ -69,6 +67,8 @@ public interface TaskRepository {
      */
     boolean deleteTask(Task task);
 
+    int deleteListOfTask(List<Task> list);
+
     /**
      * Retrieves the entire history of tasks accessed.
      *
@@ -80,4 +80,6 @@ public interface TaskRepository {
      * Clears all tasks from the repository.
      */
     void clear();
+
+    List<Task> getAllEntitiesByClass(Class<?> aClass);
 }

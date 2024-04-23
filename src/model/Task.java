@@ -108,23 +108,24 @@ public class Task {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-        Task other = (Task) obj;
-
-        // Сравнение полей объектов
-        return id == other.id;
-
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Task task = (Task) o;
+        return Objects.equals(id, task.id) &&
+                Objects.equals(title, task.title) &&
+                Objects.equals(description, task.description)
+                && status == task.status &&
+                Objects.equals(duration, task.duration) &&
+                Objects.equals(startTime, task.startTime);
     }
+
+
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(title, description, id, status, duration, startTime);
+
     }
 
     public void setId(long id) {

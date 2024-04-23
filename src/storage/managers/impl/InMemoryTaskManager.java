@@ -3,7 +3,6 @@ package storage.managers.impl;
 
 
 import model.Task;
-import service.impl.HistoryService;
 import storage.history.HistoryRepository;
 import storage.managers.TaskRepository;
 
@@ -24,11 +23,6 @@ public class InMemoryTaskManager implements TaskRepository {
 
     }
 
-    @Override
-    public HistoryRepository getHistoryService() {
-       // return historyService;
-        return null;
-    }
 
     @Override
     public Set<Task> getPrioritizedTasks() {
@@ -47,7 +41,7 @@ public class InMemoryTaskManager implements TaskRepository {
 
     @Override
     public Task getEntityById(long id) {
-        System.out.println("prioritizedTasks = " + prioritizedTasks);
+
         // ТЗ 2.C Получение по идентификатору задачи, эпика, подзадачи
         return prioritizedTasks.stream()
                 .filter(obj -> obj != null && ((Task) obj).getId() == id)
@@ -56,8 +50,8 @@ public class InMemoryTaskManager implements TaskRepository {
     }
 
     @Override
-    public void addTask(Task task) {
-        prioritizedTasks.add(task);
+    public boolean addTask(Task task) {
+       return prioritizedTasks.add(task);
     }
 
     @Override
@@ -71,6 +65,18 @@ public class InMemoryTaskManager implements TaskRepository {
     }
 
     @Override
+    public int deleteListOfTask(List<Task> list) {
+        long initialCount = list.size();
+
+        list.forEach(this::deleteTask); // deleteTask(task) needs to handle the deletion internally.
+
+        // Calculate how many tasks were deleted by comparing the sizes.
+        long deletedCount = initialCount - list.size();
+        System.out.println("After deleted size " + deletedCount);
+        return (int) deletedCount;
+    }
+
+    @Override
     public List<Task> getHistory() {
         return List.of();
     }
@@ -78,5 +84,13 @@ public class InMemoryTaskManager implements TaskRepository {
     @Override
     public void clear() {
 
+    }
+
+    @Override
+    public List<Task> getAllEntitiesByClass(Class<?> aClass) {
+        // ТЗ 2.A Получение списка всех задач, подзадач, эпиков
+        return getListOfAllEntities().stream()
+                .filter(aClass::isInstance)
+                .collect(Collectors.toList());
     }
 }
