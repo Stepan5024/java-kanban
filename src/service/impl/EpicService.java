@@ -90,14 +90,10 @@ public class EpicService extends AbstractTaskService implements IEpicService, IE
                 if (taskRepository.addTask(task)) {
                     System.out.println("Задача добавлена после удаления");
                     return task;
-                } // Add the updated task
-                else {
+                } else {
                     System.out.println("Задача НЕ добавлена после удаления");
                     return null;
                 }
-                //historyService.addTask(task); // Record the task update in history
-                // Return the updated task
-
 
             }
 
