@@ -3,11 +3,10 @@ package storage.managers.impl;
 
 
 import model.Task;
-import service.impl.LongGenerateIdServiceImpl;
+import service.impl.HistoryService;
 import storage.history.HistoryRepository;
 import storage.managers.TaskRepository;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -15,19 +14,20 @@ import java.util.stream.Collectors;
 
 public class InMemoryTaskManager implements TaskRepository {
 
-    private final HistoryRepository historyManager;
+
     private final Set<Task> prioritizedTasks = new TreeSet<>(new TaskStartTimeComparator());
 
 
 
-    public InMemoryTaskManager(HistoryRepository historyManager) {
-        this.historyManager = historyManager;
+    public InMemoryTaskManager() {
+
 
     }
 
     @Override
-    public HistoryRepository getHistoryManager() {
-        return historyManager;
+    public HistoryRepository getHistoryService() {
+       // return historyService;
+        return null;
     }
 
     @Override

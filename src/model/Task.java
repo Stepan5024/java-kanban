@@ -57,6 +57,16 @@ public class Task {
         this.startTime = null;
     }
 
+    public static boolean tasksOverlap(LocalDateTime start1, Duration duration1, LocalDateTime start2, Duration duration2) {
+        if (start1 == null || start2 == null) {
+            return false;
+        }
+        LocalDateTime end1 = start1.plus(duration1);
+        LocalDateTime end2 = start2.plus(duration2);
+
+        return start1.isBefore(end2) && start2.isBefore(end1);
+    }
+
     public Long getId() {
         return id;
     }

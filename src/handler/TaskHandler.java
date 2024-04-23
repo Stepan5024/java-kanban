@@ -29,7 +29,7 @@ public class TaskHandler implements HttpHandler {
                 .create();
     }
 
-    private static class DurationAdapter implements JsonSerializer<Duration>, JsonDeserializer<Duration> {
+    static class DurationAdapter implements JsonSerializer<Duration>, JsonDeserializer<Duration> {
         @Override
         public JsonElement serialize(Duration src, Type typeOfSrc, JsonSerializationContext context) {
             return new JsonPrimitive(src.getSeconds());
@@ -41,7 +41,7 @@ public class TaskHandler implements HttpHandler {
         }
     }
 
-    private static class LocalDateTimeAdapter implements JsonSerializer<LocalDateTime>, JsonDeserializer<LocalDateTime> {
+    static class LocalDateTimeAdapter implements JsonSerializer<LocalDateTime>, JsonDeserializer<LocalDateTime> {
         private static final DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
         @Override

@@ -12,7 +12,7 @@ public interface TaskRepository {
 
     LongGenerateIdServiceImpl generateId = new LongGenerateIdServiceImpl();
 
-    HistoryRepository getHistoryManager();
+    HistoryRepository getHistoryService();
 
     /**
      * Generates and returns a unique identifier for a new task.
@@ -22,9 +22,6 @@ public interface TaskRepository {
     static Long generateId() {
         return generateId.generateId();
     }
-
-    ;
-
 
     static Long getId() {
         return generateId.getId();

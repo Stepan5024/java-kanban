@@ -8,7 +8,7 @@ public interface HistoryRepository {
 
     void addTask(Task task);
 
-    void removeTask(long id);
+    boolean removeTask(Long id);
 
     List<Task> getHistory();
 }

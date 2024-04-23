@@ -8,7 +8,7 @@ import storage.managers.impl.InMemoryTaskManager;
 public abstract class Managers {
 
     public static TaskRepository getDefault() {
-        return new InMemoryTaskManager(new InMemoryHistoryManager());
+        return new InMemoryTaskManager();
     }
 
     public static InMemoryHistoryManager getDefaultHistory() {

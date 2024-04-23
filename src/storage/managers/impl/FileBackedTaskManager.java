@@ -9,7 +9,7 @@ import java.util.Set;
 
 public class FileBackedTaskManager implements TaskRepository {
     @Override
-    public HistoryRepository getHistoryManager() {
+    public HistoryRepository getHistoryService() {
         return null;
     }
 

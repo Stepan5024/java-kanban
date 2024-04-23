@@ -31,9 +31,6 @@ public interface ITaskService {
     Task createTask(Task task);
 
 
-
-    boolean tasksOverlap(LocalDateTime start1, Duration duration1, LocalDateTime start2, Duration duration2);
-
     /**
      * Updates an existing task.
      *

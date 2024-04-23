@@ -1,6 +1,10 @@
 
 import com.sun.net.httpserver.HttpServer;
 import handler.*;
+import manager.Managers;
+import service.IHistoryService;
+import service.impl.HistoryService;
+import service.impl.SubtaskService;
 import service.impl.TaskService;
 import storage.history.HistoryRepository;
 import storage.history.InMemoryHistoryManager;
@@ -12,16 +16,24 @@ import java.net.InetSocketAddress;
 
 public class HttpTaskServer {
     private HttpServer server;
-    private TaskService taskService;
+    private final TaskService taskService;
+    private final SubtaskService subtaskService;
+    private final IHistoryService historyService;
 
-    public HttpTaskServer(TaskRepository taskRepository) {
-        this.taskService = new TaskService(taskRepository); // Instantiate TaskService here
-        // You can pass additional dependencies to TaskService if needed
+    public HttpTaskServer(TaskRepository taskRepository, HistoryRepository historyRepository) {
+        this.historyService = new HistoryService(historyRepository);
+        this.taskService = new TaskService(taskRepository, historyService); // Instantiate TaskService here
+        this.subtaskService = new SubtaskService(taskRepository, historyService);
+
+
     }
 
     public static void main(String[] args) {
-        HistoryRepository historyRepository = new InMemoryHistoryManager();
-        HttpTaskServer taskServer = new HttpTaskServer(new InMemoryTaskManager(historyRepository));
+        HistoryRepository historyRepository = Managers.getDefaultHistory();
+        TaskRepository taskRepository = Managers.getDefault();
+
+
+        HttpTaskServer taskServer = new HttpTaskServer(taskRepository, historyRepository);
         taskServer.start();
     }
 
@@ -38,10 +50,10 @@ public class HttpTaskServer {
 
     private void createContexts() {
         server.createContext("/tasks", new TaskHandler(taskService));
-      /*  server.createContext("/subtasks", new SubtaskHandler());
-        server.createContext("/epics", new EpicHandler());
-        server.createContext("/history", new HistoryHandler());
-        server.createContext("/prioritized", new PrioritizedTaskHandler());
+        server.createContext("/subtasks", new SubtaskHandler(subtaskService));
+        //server.createContext("/epics", new EpicHandler());
+        server.createContext("/history", new HistoryHandler(historyService));
+        /* server.createContext("/prioritized", new PrioritizedTaskHandler());
 
 
        */

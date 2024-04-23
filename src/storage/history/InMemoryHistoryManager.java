@@ -51,10 +51,11 @@ public class InMemoryHistoryManager implements HistoryRepository {
     }
 
     @Override
-    public void removeTask(long id) {
+    public boolean removeTask(Long id) {
         if (recentTasks.containsKey(id)) {
             removeNode(recentTasks.get(id));
         }
+        return true;
     }
 
     private void removeNode(Node node) {
