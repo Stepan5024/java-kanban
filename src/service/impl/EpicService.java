@@ -44,6 +44,7 @@ public class EpicService extends AbstractTaskService implements IEpicService, IE
 
         if (epic != null && epic.getClass().equals(Epic.class)) {
             historyService.addTask(epic);
+            taskRepository.getEpicById(id); // сохранение просмотра
         } else {
             String nameClass = epic == null ? "null" : String.valueOf(epic.getClass());
             System.out.printf("Запрашиваемый id = %d не принадлежит Task, а является %s\n", id, nameClass);
@@ -123,6 +124,11 @@ public class EpicService extends AbstractTaskService implements IEpicService, IE
     }
 
     @Override
+    public List<Subtask> getSubtasksByEpic(Long epicId) {
+        return subtaskService.getSubtasksByEpicId(epicId);
+    }
+
+    @Override
     public void actualizeEpicStatus(Long epicId) {
         System.out.println("actualizeEpicStatus");
         Epic currentEpic = (Epic) taskRepository.getEntityById(epicId);
@@ -146,6 +152,7 @@ public class EpicService extends AbstractTaskService implements IEpicService, IE
             updateEpic(currentEpic);
         }
     }
+
 
     @Override
     public void updateEpicTimeAndDuration(Long epicId) {

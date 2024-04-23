@@ -19,4 +19,5 @@ public interface IEpicService {
 
     boolean deleteEpic(Long id);
 
+    List<Subtask> getSubtasksByEpic(Long epicId);
 }

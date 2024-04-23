@@ -1,7 +1,8 @@
 package storage.managers.impl;
 
 
-
+import model.Epic;
+import model.Subtask;
 import model.Task;
 import storage.history.HistoryRepository;
 import storage.managers.TaskRepository;
@@ -12,16 +13,13 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 public class InMemoryTaskManager implements TaskRepository {
+    protected static HistoryRepository historyRepository;
 
+    public InMemoryTaskManager(HistoryRepository historyRepository) {
+        this.historyRepository = historyRepository;
+    }
 
     private final Set<Task> prioritizedTasks = new TreeSet<>(new TaskStartTimeComparator());
-
-
-
-    public InMemoryTaskManager() {
-
-
-    }
 
 
     @Override
@@ -29,10 +27,6 @@ public class InMemoryTaskManager implements TaskRepository {
         return prioritizedTasks;
     }
 
-    @Override
-    public Task getTaskById(long id) {
-        return null;
-    }
 
     @Override
     public List<Task> getListOfAllEntities() {
@@ -40,7 +34,22 @@ public class InMemoryTaskManager implements TaskRepository {
     }
 
     @Override
-    public Task getEntityById(long id) {
+    public Task getTaskById(Long id) {
+        return getEntityById(id);
+    }
+
+    @Override
+    public Subtask getSubtaskById(Long id) {
+        return (Subtask) getEntityById(id);
+    }
+
+    @Override
+    public Epic getEpicById(Long id) {
+        return (Epic) getEntityById(id);
+    }
+
+    @Override
+    public Task getEntityById(Long id) {
 
         // ТЗ 2.C Получение по идентификатору задачи, эпика, подзадачи
         return prioritizedTasks.stream()
@@ -51,13 +60,9 @@ public class InMemoryTaskManager implements TaskRepository {
 
     @Override
     public boolean addTask(Task task) {
-       return prioritizedTasks.add(task);
+        return prioritizedTasks.add(task);
     }
 
-    @Override
-    public boolean updateTask(Task task) {
-        return false;
-    }
 
     @Override
     public boolean deleteTask(Task task) {
@@ -70,21 +75,11 @@ public class InMemoryTaskManager implements TaskRepository {
 
         list.forEach(this::deleteTask); // deleteTask(task) needs to handle the deletion internally.
 
-        // Calculate how many tasks were deleted by comparing the sizes.
         long deletedCount = initialCount - list.size();
         System.out.println("After deleted size " + deletedCount);
         return (int) deletedCount;
     }
 
-    @Override
-    public List<Task> getHistory() {
-        return List.of();
-    }
-
-    @Override
-    public void clear() {
-
-    }
 
     @Override
     public List<Task> getAllEntitiesByClass(Class<?> aClass) {

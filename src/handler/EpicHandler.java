@@ -5,6 +5,8 @@ import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import model.Epic;
+import model.Subtask;
+import service.IEpicService;
 import service.impl.EpicService;
 
 import java.io.IOException;
@@ -14,12 +16,13 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class EpicHandler implements HttpHandler {
-    private final EpicService epicService;
+    private final IEpicService epicService;
     private final Gson gson;
 
-    public EpicHandler(EpicService epicService) {
+    public EpicHandler(IEpicService epicService) {
         this.epicService = epicService;
         this.gson = new GsonBuilder()
                 .registerTypeAdapter(Duration.class, new TaskHandler.DurationAdapter())
@@ -40,6 +43,9 @@ public class EpicHandler implements HttpHandler {
                     } else if (pathParts.length == 3) {
                         long id = Long.parseLong(pathParts[2]);
                         handleGetEpicById(exchange, id);
+                    } else if (pathParts.length == 4 && "subtasks".equals(pathParts[3])) {
+                        long epicId = Long.parseLong(pathParts[2]);
+                        handleGetSubtaskByEpic(exchange, epicId);
                     }
                     break;
                 case "POST":
@@ -61,6 +67,14 @@ public class EpicHandler implements HttpHandler {
             sendResponse(exchange, 500, "Internal Server Error: " + e.getMessage());
         } finally {
             exchange.close();
+        }
+    }
+    private void handleGetSubtaskByEpic(HttpExchange exchange, long epicId) throws IOException {
+        List<Subtask> subtasks = epicService.getSubtasksByEpic(epicId);
+        if (subtasks != null && !subtasks.isEmpty()) {
+            sendResponse(exchange, 200, gson.toJson(subtasks));
+        } else {
+            sendResponse(exchange, 404, "No subtasks found for this epic or epic does not exist");
         }
     }
 

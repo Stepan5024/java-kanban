@@ -9,14 +9,9 @@ import java.util.Map;
 
 public class InMemoryHistoryManager implements HistoryRepository {
 
-
     private Node head;
     private Node tail;
     private final Map<Long, Node> recentTasks = new HashMap<>();
-
-    public Map<Long, Node> getRecentTasks() {
-        return recentTasks;
-    }
 
     @Override
     public ArrayList<Task> getHistory() {

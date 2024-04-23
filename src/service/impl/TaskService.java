@@ -31,10 +31,11 @@ public class TaskService extends AbstractTaskService implements ITaskService {
 
     @Override
     public Task getTaskById(Long id) {
-        Task task = taskRepository.getEntityById(id);
+        Task task = taskRepository.getTaskById(id);
 
         if (task != null && task.getClass().equals(Task.class)) {
             historyService.addTask(task);
+            taskRepository.getTaskById(id); // сохранение истории
         } else {
             String nameClass = task == null ? "null" : String.valueOf(task.getClass());
             System.out.printf("Запрашиваемый id = %d не принадлежит Task, а является %s\n", id, nameClass);

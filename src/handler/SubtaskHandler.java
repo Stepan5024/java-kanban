@@ -5,6 +5,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import model.Subtask;
 import model.Task;
+import service.ISubtaskService;
 import service.impl.SubtaskService;
 
 import java.io.IOException;
@@ -17,10 +18,10 @@ import java.time.LocalDateTime;
 
 public class SubtaskHandler implements HttpHandler {
 
-    private final SubtaskService subtaskService;
+    private final ISubtaskService subtaskService;
     private final Gson gson;
 
-    public SubtaskHandler(SubtaskService subtaskService) {
+    public SubtaskHandler(ISubtaskService subtaskService) {
         this.subtaskService = subtaskService;
         this.gson = new GsonBuilder()
                 .registerTypeAdapter(Duration.class, new TaskHandler.DurationAdapter())

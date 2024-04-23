@@ -39,17 +39,18 @@ public class SubtaskService extends AbstractTaskService implements ISubtaskServi
     @Override
     public Subtask getSubtaskById(Long id) {
         System.out.println("getSubtaskById");
-        Subtask task = (Subtask) taskRepository.getEntityById(id);
+        Task task = taskRepository.getEntityById(id);
 
         if (task != null && task.getClass().equals(Subtask.class)) {
             historyService.addTask(task);
+            taskRepository.getSubtaskById(id); // сохранение в памяти
         } else {
             String nameClass = task == null ? "null" : String.valueOf(task.getClass());
             System.out.printf("Запрашиваемый id = %d не принадлежит Subtask, а является %s\n", id, nameClass);
             return null;
         }
 
-        return task;
+        return (Subtask) task;
     }
 
     public boolean checkIsEpic(long epicId) {
@@ -116,23 +117,10 @@ public class SubtaskService extends AbstractTaskService implements ISubtaskServi
                 .collect(Collectors.toList());
     }
 
-    public boolean removeSubtaskById(Long subtaskId) {
-        Task taskToRemove = taskRepository.getPrioritizedTasks().stream()
-                .filter(task -> task.getId().equals(subtaskId))
-                .findFirst()
-                .orElse(null);
-
-        if (taskToRemove != null) {
-            return taskRepository.deleteTask(taskToRemove);
-        }
-
-        return false; // If the subtask was not found.
-    }
-
     @Override
     public Subtask updateSubtask(Subtask task) {
         System.out.println("updateSubtask");
-        // Retrieve the task from the set if it exists
+
         Subtask existingTask = taskRepository.getPrioritizedTasks().stream()
                 .filter(t -> t.getId().equals(task.getId()) && t.getClass().equals(Subtask.class))
                 .map(t -> (Subtask) t)
@@ -140,30 +128,26 @@ public class SubtaskService extends AbstractTaskService implements ISubtaskServi
                 .orElse(null);
 
         if (existingTask != null) {
-            // Remove the old version of the task
+
             System.out.println("Existing subtask: " + existingTask);
             System.out.println("New subtask data: " + task);
             System.out.println("Current tasks in the repository: " + taskRepository.getPrioritizedTasks());
 
             boolean overlap = isOverlap(task);
             if (!overlap) {
-                //boolean removed = removeSubtaskById(existingTask.getId());
                 boolean removed = taskRepository.deleteTask(existingTask);
                 if (removed) {
 
-                    taskRepository.addTask(task); // Add the updated task
+                    taskRepository.addTask(task);
                     System.out.println("Subtask updated successfully.");
                     if (task.getEpicId() != null) {
                         Long epicId = existingTask.getEpicId();
                         epicStatusUpdater.actualizeEpicStatus(epicId);
                         epicStatusUpdater.updateEpicTimeAndDuration(epicId);
                     }
-
-
                     return task;
                 } else {
                     System.out.println("Failed to remove the existing task.");
-
                     return null;
                 }
             }
@@ -187,7 +171,7 @@ public class SubtaskService extends AbstractTaskService implements ISubtaskServi
 
             return taskRepository.deleteTask(task);
         } else {
-            return false; // Task either not found or not of type Task
+            return false;
         }
 
     }

@@ -1,6 +1,8 @@
 package storage.managers;
 
 
+import model.Epic;
+import model.Subtask;
 import model.Task;
 import service.impl.LongGenerateIdServiceImpl;
 import storage.history.HistoryRepository;
@@ -32,17 +34,13 @@ public interface TaskRepository {
      */
     Set<Task> getPrioritizedTasks();
 
-    /**
-     * Retrieves a task by its ID.
-     *
-     * @param id the ID of the task
-     * @return the task with the given ID or null if not found
-     */
-    Task getTaskById(long id);
-
     List<Task> getListOfAllEntities();
 
-    Task getEntityById(long id);
+    Task getTaskById(Long id);
+    Subtask getSubtaskById(Long id);
+    Epic getEpicById(Long id);
+
+    Task getEntityById(Long id);
 
     /**
      * Adds a new task to the repository.
@@ -50,15 +48,6 @@ public interface TaskRepository {
      * @param task the task to add
      */
     boolean addTask(Task task);
-
-    /**
-     * Updates an existing task in the repository.
-     *
-     * @param task the task to update
-     * @return true if the task was updated, false if not found
-     */
-    boolean updateTask(Task task);
-
     /**
      * Deletes a task from the repository by its ID.
      *
@@ -68,18 +57,6 @@ public interface TaskRepository {
     boolean deleteTask(Task task);
 
     int deleteListOfTask(List<Task> list);
-
-    /**
-     * Retrieves the entire history of tasks accessed.
-     *
-     * @return a list representing the history of accessed tasks
-     */
-    List<Task> getHistory();
-
-    /**
-     * Clears all tasks from the repository.
-     */
-    void clear();
 
     List<Task> getAllEntitiesByClass(Class<?> aClass);
 }

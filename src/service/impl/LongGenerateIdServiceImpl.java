@@ -15,4 +15,8 @@ public class LongGenerateIdServiceImpl implements GenerateIdService<Long> {
     public Long getId(){
         return id;
     }
+
+    public void setId(long newId) {
+        this.id = newId;
+    }
 }

@@ -4,6 +4,7 @@ import com.google.gson.*;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import model.Task;
+import service.ITaskService;
 import service.impl.TaskService;
 
 
@@ -18,10 +19,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class TaskHandler implements HttpHandler {
-    private final TaskService taskService;
+    private final ITaskService taskService;
     private final Gson gson;
 
-    public TaskHandler(TaskService taskService) {
+    public TaskHandler(ITaskService taskService) {
         this.taskService = taskService;
         this.gson = new GsonBuilder()
                 .registerTypeAdapter(Duration.class, new DurationAdapter())
@@ -29,7 +30,7 @@ public class TaskHandler implements HttpHandler {
                 .create();
     }
 
-    static class DurationAdapter implements JsonSerializer<Duration>, JsonDeserializer<Duration> {
+    public static class DurationAdapter implements JsonSerializer<Duration>, JsonDeserializer<Duration> {
         @Override
         public JsonElement serialize(Duration src, Type typeOfSrc, JsonSerializationContext context) {
             return new JsonPrimitive(src.getSeconds());
@@ -41,7 +42,7 @@ public class TaskHandler implements HttpHandler {
         }
     }
 
-    static class LocalDateTimeAdapter implements JsonSerializer<LocalDateTime>, JsonDeserializer<LocalDateTime> {
+    public static class LocalDateTimeAdapter implements JsonSerializer<LocalDateTime>, JsonDeserializer<LocalDateTime> {
         private static final DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
         @Override

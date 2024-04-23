@@ -2,25 +2,21 @@
 import com.sun.net.httpserver.HttpServer;
 import handler.*;
 import manager.Managers;
-import service.IHistoryService;
-import service.impl.EpicService;
-import service.impl.HistoryService;
-import service.impl.SubtaskService;
-import service.impl.TaskService;
+import service.*;
+import service.impl.*;
 import storage.history.HistoryRepository;
-import storage.history.InMemoryHistoryManager;
 import storage.managers.TaskRepository;
-import storage.managers.impl.InMemoryTaskManager;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
 public class HttpTaskServer {
     private HttpServer server;
-    private final TaskService taskService;
-    private final SubtaskService subtaskService;
+    private final ITaskService taskService;
+    private final ISubtaskService subtaskService;
     private final EpicService epicService;
     private final IHistoryService historyService;
+    private final IPrioritizedService prioritizedService;
 
     public HttpTaskServer(TaskRepository taskRepository, HistoryRepository historyRepository) {
         this.historyService = new HistoryService(historyRepository);
@@ -28,14 +24,13 @@ public class HttpTaskServer {
         this.epicService = new EpicService(taskRepository, historyService);
         this.subtaskService = new SubtaskService(taskRepository, historyService, epicService);
         this.epicService.setSubtaskService(subtaskService);
+        this.prioritizedService = new PrioritizedService(taskRepository, historyService);
 
     }
 
     public static void main(String[] args) {
         HistoryRepository historyRepository = Managers.getDefaultHistory();
-        TaskRepository taskRepository = Managers.getDefault();
-
-
+        TaskRepository taskRepository = Managers.getDefault(historyRepository);
         HttpTaskServer taskServer = new HttpTaskServer(taskRepository, historyRepository);
         taskServer.start();
     }
@@ -56,10 +51,8 @@ public class HttpTaskServer {
         server.createContext("/subtasks", new SubtaskHandler(subtaskService));
         server.createContext("/epics", new EpicHandler(epicService));
         server.createContext("/history", new HistoryHandler(historyService));
-        /* server.createContext("/prioritized", new PrioritizedTaskHandler());
+        server.createContext("/prioritized", new PrioritizedTaskHandler(prioritizedService));
 
-
-       */
     }
 
     public void stop() {
