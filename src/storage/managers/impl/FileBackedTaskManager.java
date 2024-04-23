@@ -67,7 +67,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskRe
 
     public static TaskRepository loadFromFile(File file) throws IOException {
         TaskRepository manager = new FileBackedTaskManager(file.getPath(), historyRepository);
-        Long highestId = 0l;
+        Long highestId = 0L;
 
         String content = Files.readString(file.toPath());
         String[] lines = content.split("\n");
