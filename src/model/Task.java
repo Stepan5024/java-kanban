@@ -1,9 +1,5 @@
 package model;
 
-import controller.managers.InMemoryTaskManager;
-import controller.managers.TaskManager;
-
-import manager.Managers;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -15,19 +11,17 @@ public class Task {
 
     String title;
     String description;
-    long id;
+    Long id;
     TaskStatus status;
     Duration duration;
     LocalDateTime startTime;
 
     public Task(String title, String description, TaskStatus status) {
-        TaskManager memoryTaskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
         this.title = title;
         this.description = description;
         this.status = status;
         this.duration = Duration.ZERO;
         this.startTime = null;
-        this.id = memoryTaskManager.generateId();
     }
 
     public Task(String title, String description, TaskStatus taskStatus, long id,
@@ -42,11 +36,9 @@ public class Task {
 
     public Task(String title, String description, TaskStatus status,
                 LocalDateTime startTime, Duration duration) {
-        TaskManager memoryTaskManager = new InMemoryTaskManager(Managers.getDefaultHistory());
 
         this.title = title;
         this.description = description;
-        this.id = memoryTaskManager.generateId();
         this.status = status;
         this.duration = duration;
         this.startTime = startTime;
@@ -61,7 +53,17 @@ public class Task {
         this.startTime = null;
     }
 
-    public long getId() {
+    public static boolean tasksOverlap(LocalDateTime start1, Duration duration1, LocalDateTime start2, Duration duration2) {
+        if (start1 == null || start2 == null) {
+            return false;
+        }
+        LocalDateTime end1 = start1.plus(duration1);
+        LocalDateTime end2 = start2.plus(duration2);
+
+        return start1.isBefore(end2) && start2.isBefore(end1);
+    }
+
+    public Long getId() {
         return id;
     }
 
@@ -102,23 +104,23 @@ public class Task {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-        Task other = (Task) obj;
-
-        // Сравнение полей объектов
-        return id == other.id;
-
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Task task = (Task) o;
+        return Objects.equals(id, task.id) &&
+                Objects.equals(title, task.title) &&
+                Objects.equals(description, task.description)
+                && status == task.status &&
+                Objects.equals(duration, task.duration) &&
+                Objects.equals(startTime, task.startTime);
     }
+
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(title, description, id, status, duration, startTime);
+
     }
 
     public void setId(long id) {

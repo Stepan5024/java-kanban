@@ -1,6 +1,6 @@
 package controller.history;
 
-import controller.managers.InMemoryTaskManager;
+
 import manager.Managers;
 import model.Epic;
 import model.Subtask;
@@ -9,6 +9,13 @@ import model.TaskStatus;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import service.impl.EpicService;
+import service.impl.HistoryService;
+import service.impl.SubtaskService;
+import service.impl.TaskService;
+import storage.history.HistoryRepository;
+import storage.history.InMemoryHistoryManager;
+import storage.managers.impl.InMemoryTaskManager;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -39,8 +46,12 @@ class InMemoryHistoryManagerTest {
     static String thirdEpicTitle;
     static String thirdEpicDescription;
 
-    InMemoryHistoryManager historyManager;
+    HistoryRepository historyRepository;
     InMemoryTaskManager memoryTaskManagerTest = new InMemoryTaskManager(Managers.getDefaultHistory());
+    HistoryService historyService = new HistoryService(historyRepository);
+    TaskService taskService = new TaskService(memoryTaskManagerTest, historyService);
+    EpicService epicService = new EpicService(memoryTaskManagerTest, historyService);
+    SubtaskService subtaskService = new SubtaskService(memoryTaskManagerTest, historyService, epicService);
 
     @BeforeAll
     static void initTextLabels() {
@@ -67,16 +78,25 @@ class InMemoryHistoryManagerTest {
 
     @BeforeEach
     void setUp() {
-        historyManager = new InMemoryHistoryManager();
+        historyRepository = new InMemoryHistoryManager();
+        historyService = new HistoryService(historyRepository);
+
+        memoryTaskManagerTest = new InMemoryTaskManager(Managers.getDefaultHistory());
+
+        taskService = new TaskService(memoryTaskManagerTest, historyService);
+        epicService = new EpicService(memoryTaskManagerTest, historyService);
+        this.epicService.setSubtaskService(subtaskService);
+        subtaskService = new SubtaskService(memoryTaskManagerTest, historyService, epicService);
+
     }
 
     @Test
     void addSingleTaskTest() {
         Task task = new Task(firstTaskTitle, firstTaskDescription, TaskStatus.NEW);
-        historyManager.add(task);
-        assertFalse(historyManager.getHistory().isEmpty(), "История просмотра не должна быть пустой после " +
+        historyService.addTask(task);
+        assertFalse(historyRepository.getHistory().isEmpty(), "История просмотра не должна быть пустой после " +
                 "добавления в нее просмотра");
-        assertEquals(task, historyManager.getHistory().get(0), "Добавленная задача не равна " +
+        assertEquals(task, historyRepository.getHistory().get(0), "Добавленная задача не равна " +
                 "первой задаче в истории");
     }
 
@@ -88,15 +108,16 @@ class InMemoryHistoryManagerTest {
 
     @Test
     public void shouldNotAllowDuplicatesAndMoveToTheEndIfRepeated() {
-        InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
-        Task task1 = new Task(firstTaskTitle, firstTaskDescription, TaskStatus.NEW);
-        Task task2 = new Task(secondTaskTitle, secondTaskDescription, TaskStatus.NEW);
 
-        historyManager.add(task1);
-        historyManager.add(task2);
-        historyManager.add(task1); // Добавляем task1 еще раз
+        Task task1 = taskService.createTask(new Task(firstTaskTitle, firstTaskDescription, TaskStatus.NEW));
 
-        List<Task> history = historyManager.getHistory();
+        Task task2 = taskService.createTask(new Task(secondTaskTitle, secondTaskDescription, TaskStatus.NEW));
+
+        historyService.addTask(task1);
+        historyService.addTask(task2);
+        historyService.addTask(task1); // Добавляем task1 еще раз
+
+        List<Task> history = historyRepository.getHistory();
         assertEquals(2, history.size(), "История должна содержать 2 уникальных задачи.");
         assertEquals(task2, history.get(0), "Task2 должен быть первым в истории.");
         assertEquals(task1, history.get(1), "Task1 должен быть перемещен в конец истории.");
@@ -104,85 +125,90 @@ class InMemoryHistoryManagerTest {
 
     @Test
     public void shouldRemoveTaskFromStartOfHistory() {
-        InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
-        Task task1 = new Task(firstTaskTitle, firstTaskDescription, TaskStatus.NEW);
-        Task task2 = new Task(secondTaskTitle, secondTaskDescription, TaskStatus.NEW);
 
-        historyManager.add(task1);
-        historyManager.add(task2);
+        Task task1 = taskService.createTask(new Task(firstTaskTitle, firstTaskDescription, TaskStatus.NEW));
+        Task task2 = taskService.createTask(new Task(secondTaskTitle, secondTaskDescription, TaskStatus.NEW));
 
-        historyManager.remove(task1.getId());
+        historyService.addTask(task1);
+        historyService.addTask(task2);
 
-        assertFalse(historyManager.getHistory().contains(task1), "Task1 должен быть удален из истории.");
+        historyService.removeTask(task1.getId());
+
+        assertFalse(historyService.getHistory().contains(task1), "Task1 должен быть удален из истории.");
     }
 
     @Test
     public void shouldRemoveTaskFromMiddleOfHistory() {
-        InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
-        Task task1 = new Task(firstTaskTitle, firstTaskDescription, TaskStatus.NEW);
-        Task task2 = new Task(secondTaskTitle, secondTaskDescription, TaskStatus.NEW);
-        Task task3 = new Task(thirdTaskTitle, thirdTaskDescription, TaskStatus.NEW);
 
-        historyManager.add(task1);
-        historyManager.add(task2);
-        historyManager.add(task3);
+        Task task1 = taskService.createTask(new Task(firstTaskTitle, firstTaskDescription, TaskStatus.NEW));
+        Task task2 = taskService.createTask(new Task(secondTaskTitle, secondTaskDescription, TaskStatus.NEW));
+        Task task3 = taskService.createTask(new Task(thirdTaskTitle, thirdTaskDescription, TaskStatus.NEW));
 
-        historyManager.remove(task2.getId());
+        historyService.addTask(task1);
+        historyService.addTask(task2);
+        historyService.addTask(task3);
 
-        assertFalse(historyManager.getHistory().contains(task2), "Task2 должен быть удален из истории.");
+        historyService.removeTask(task2.getId());
+
+        assertFalse(historyService.getHistory().contains(task2), "Task2 должен быть удален из истории.");
     }
 
     @Test
     public void shouldRemoveTaskFromEndOfHistory() {
-        InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
-        Task task1 = new Task(firstTaskTitle, firstTaskDescription, TaskStatus.NEW);
-        Task task2 = new Task(secondTaskTitle, secondTaskDescription, TaskStatus.NEW);
 
-        historyManager.add(task1);
-        historyManager.add(task2);
+        Task task1 = taskService.createTask(new Task(firstTaskTitle, firstTaskDescription, TaskStatus.NEW));
+        Task task2 = taskService.createTask(new Task(secondTaskTitle, secondTaskDescription, TaskStatus.NEW));
 
-        historyManager.remove(task2.getId());
+        historyService.addTask(task1);
+        historyService.addTask(task2);
 
-        assertFalse(historyManager.getHistory().contains(task2), "Task2 должен быть удален из истории.");
+        historyService.removeTask(task2.getId());
+
+        assertFalse(historyService.getHistory().contains(task2), "Task2 должен быть удален из истории.");
     }
 
 
     @Test
     void orderOfAddedTasksTest() {
-        Task firstTask = new Task(firstTaskTitle, firstTaskDescription, TaskStatus.NEW);
-        Task secondTask = new Task(secondTaskTitle, secondTaskDescription, TaskStatus.NEW);
-        historyManager.add(firstTask);
-        historyManager.add(secondTask);
-        assertEquals(2, historyManager.getHistory().size(), "История должна содержать две задачи");
-        assertEquals(firstTask, historyManager.getHistory().get(0), "Первая задача не равна первой задачи в " +
+        Task firstTask = taskService.createTask(new Task(firstTaskTitle, firstTaskDescription, TaskStatus.NEW));
+        Task secondTask = taskService.createTask(new Task(secondTaskTitle, secondTaskDescription, TaskStatus.NEW));
+        historyRepository.addTask(firstTask);
+        historyRepository.addTask(secondTask);
+        assertEquals(2, historyRepository.getHistory().size(), "История должна содержать две задачи");
+        assertEquals(firstTask, historyRepository.getHistory().get(0), "Первая задача не равна первой задачи в " +
                 "истории просмотра");
-        assertEquals(secondTask, historyManager.getHistory().get(1), "Вторая задача не равна второй задачи в " +
+        assertEquals(secondTask, historyRepository.getHistory().get(1), "Вторая задача не равна второй задачи в " +
                 "истории просмотра");
     }
 
     @Test
     void getHistoryUniqueTask() {
         ArrayList<Task> expectedList = new ArrayList<>();
-        Task task1 = memoryTaskManagerTest.createNewTask(firstTaskTitle,
-                firstTaskDescription, "DONE", null, Duration.ZERO);
-        Epic epic1 = memoryTaskManagerTest.createNewEpic(firstEpicTitle,
-                firstEpicDescription);
-        Subtask subtask1 = memoryTaskManagerTest.createNewSubtask(thirdSubTaskTitle,
-                thirdSubTaskDescription, "NEW", epic1.getId(), null, Duration.ZERO);
-        Subtask subtask2 = memoryTaskManagerTest.createNewSubtask(secondSubTaskTitleForFirstEpic,
-                secondSubTaskDescriptionForFirstEpic, "NEW", epic1.getId(), null, Duration.ZERO);
-        Task task2 = memoryTaskManagerTest.createNewTask(fourTaskTitle,
-                fourTaskDescription, "DONE", null, Duration.ZERO);
-        Epic epic2 = memoryTaskManagerTest.createNewEpic(secondEpicTitle,
-                secondEpicDescription);
-        Task task3 = memoryTaskManagerTest.createNewTask(thirdTaskTitle,
-                thirdTaskDescription, "DONE", null, Duration.ZERO);
-        Epic epic3 = memoryTaskManagerTest.createNewEpic(thirdEpicTitle,
-                thirdEpicDescription);
-        Subtask subtask3 = memoryTaskManagerTest.createNewSubtask(firstTaskTitle,
-                firstTaskDescription, "NEW", epic1.getId(), null, Duration.ZERO);
-        Subtask subtask4 = memoryTaskManagerTest.createNewSubtask(firstTaskTitle,
-                firstTaskDescription, "NEW", epic1.getId(), null, Duration.ZERO);
+
+        Task task1 = taskService.createTask(new Task(firstTaskTitle,
+                firstTaskDescription, TaskStatus.DONE, null, Duration.ZERO));
+        Epic epic1 = epicService.createEpic(new Epic(firstEpicTitle,
+                firstEpicDescription, null));
+        System.out.println(epic1);
+        assertNotNull(epic1, "Epic creation failed, epic1 is null.");
+        assertNotNull(epic1.getId(), "Epic ID is null after creation.");
+
+        Subtask subtask1 = subtaskService.createSubtask(new Subtask(thirdSubTaskTitle,
+                thirdSubTaskDescription, TaskStatus.NEW, epic1.getId(), null, Duration.ZERO));
+        Subtask subtask2 = subtaskService.createSubtask(new Subtask(secondSubTaskTitleForFirstEpic,
+                secondSubTaskDescriptionForFirstEpic, TaskStatus.NEW, epic1.getId(), null, Duration.ZERO));
+        Task task2 = taskService.createTask(new Task(fourTaskTitle,
+                fourTaskDescription, TaskStatus.DONE, null, Duration.ZERO));
+        Epic epic2 = epicService.createEpic(new Epic(secondEpicTitle,
+                secondEpicDescription, null));
+        Task task3 = taskService.createTask(new Task(thirdTaskTitle,
+                thirdTaskDescription, TaskStatus.DONE, null, Duration.ZERO));
+        Epic epic3 = epicService.createEpic(new Epic(thirdEpicTitle,
+                thirdEpicDescription, null));
+        Subtask subtask3 = subtaskService.createSubtask(new Subtask(firstTaskTitle,
+                firstTaskDescription, TaskStatus.NEW, epic1.getId(), null, Duration.ZERO));
+        Subtask subtask4 = subtaskService.createSubtask(new Subtask(firstTaskTitle,
+                firstTaskDescription, TaskStatus.NEW, epic1.getId(), null, Duration.ZERO));
         expectedList.add(task1);
         expectedList.add(epic1);
         expectedList.add(subtask1);
@@ -194,18 +220,18 @@ class InMemoryHistoryManagerTest {
         expectedList.add(subtask3);
         expectedList.add(subtask4);
 
-        historyManager.add(task1);
-        historyManager.add(epic1);
-        historyManager.add(subtask1);
-        historyManager.add(task2);
-        historyManager.add(epic2);
-        historyManager.add(subtask2);
-        historyManager.add(task3);
-        historyManager.add(epic3);
-        historyManager.add(subtask3);
-        historyManager.add(subtask4);
+        historyService.addTask(task1);
+        historyService.addTask(epic1);
+        historyService.addTask(subtask1);
+        historyService.addTask(task2);
+        historyService.addTask(epic2);
+        historyService.addTask(subtask2);
+        historyService.addTask(task3);
+        historyService.addTask(epic3);
+        historyService.addTask(subtask3);
+        historyService.addTask(subtask4);
 
-        ArrayList<Task> listOfReturnedHistory = historyManager.getHistory();
+        List<Task> listOfReturnedHistory = historyService.getHistory();
         assertEquals(10, listOfReturnedHistory.size(),
                 String.format("Было создано 10 уникальных просмотров, а вернулось %d", listOfReturnedHistory.size()));
         for (int i = 0; i < expectedList.size(); i++) {
@@ -219,17 +245,17 @@ class InMemoryHistoryManagerTest {
         LinkedList<Task> expectedList = new LinkedList<>();
         List<Task> listOfReturnedHistory;
 
-        Task task1 = memoryTaskManagerTest.createNewTask(firstTaskTitle,
-                firstTaskDescription, "DONE", null, Duration.ZERO);
-        Epic epic1 = memoryTaskManagerTest.createNewEpic(firstEpicTitle,
-                firstEpicDescription);
-        Subtask subtask1 = memoryTaskManagerTest.createNewSubtask(thirdSubTaskTitle,
-                thirdSubTaskDescription, "NEW", epic1.getId(), null, Duration.ZERO);
+        Task task1 = taskService.createTask(new Task(firstTaskTitle,
+                firstTaskDescription, TaskStatus.DONE, null, Duration.ZERO));
+        Epic epic1 = epicService.createEpic(new Epic(firstEpicTitle,
+                firstEpicDescription, null));
+        Subtask subtask1 = subtaskService.createSubtask(new Subtask(thirdSubTaskTitle,
+                thirdSubTaskDescription, TaskStatus.NEW, epic1.getId(), null, Duration.ZERO));
 
         expectedList.add(task1);
-        historyManager.add(task1);
+        historyRepository.addTask(task1);
 
-        listOfReturnedHistory = historyManager.getHistory();
+        listOfReturnedHistory = historyRepository.getHistory();
         int expected1 = 1;
         assertEquals(expected1, listOfReturnedHistory.size(),
                 String.format("Было создано %d уникальных просмотров, а вернулось %d",
@@ -239,10 +265,10 @@ class InMemoryHistoryManagerTest {
                     " в истории не равны %s %s", expectedList.get(i), listOfReturnedHistory.get(i)));
         }
 
-        historyManager.add(epic1);
+        historyRepository.addTask(epic1);
         expectedList.add(epic1);
         expected1 = 2;
-        listOfReturnedHistory = historyManager.getHistory();
+        listOfReturnedHistory = historyRepository.getHistory();
         assertEquals(expected1, listOfReturnedHistory.size(),
                 String.format("Было создано %d уникальных просмотров, а вернулось %d",
                         expected1, listOfReturnedHistory.size()));
@@ -251,10 +277,10 @@ class InMemoryHistoryManagerTest {
                     " в истории не равны %s %s", expectedList.get(i), listOfReturnedHistory.get(i)));
         }
 
-        historyManager.add(subtask1);
+        historyRepository.addTask(subtask1);
         expectedList.add(subtask1);
         expected1 = 3;
-        listOfReturnedHistory = historyManager.getHistory();
+        listOfReturnedHistory = historyRepository.getHistory();
         assertEquals(expected1, listOfReturnedHistory.size(),
                 String.format("Было создано %d уникальных просмотров, а вернулось %d",
                         expected1, listOfReturnedHistory.size()));
@@ -265,9 +291,9 @@ class InMemoryHistoryManagerTest {
         // надо переместить в истории просмотра в конец задачу
         expectedList.remove(task1);
         expectedList.add(task1);
-        historyManager.add(task1);
+        historyRepository.addTask(task1);
 
-        listOfReturnedHistory = historyManager.getHistory();
+        listOfReturnedHistory = historyRepository.getHistory();
         assertEquals(expected1, listOfReturnedHistory.size(),
                 String.format("Было создано %d уникальных просмотров, а вернулось %d", expected1, listOfReturnedHistory.size()));
         for (int i = 0; i < expectedList.size(); i++) {
@@ -278,19 +304,19 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void add() {
-        int sizeHistoryListBefore = historyManager.getRecentTasks().size();
+        int sizeHistoryListBefore = historyRepository.getHistory().size();
 
-        Task task1 = memoryTaskManagerTest.createNewTask(firstTaskTitle,
-                firstTaskDescription, "DONE", null, Duration.ZERO);
-        Epic epic1 = memoryTaskManagerTest.createNewEpic(firstEpicTitle,
-                firstEpicDescription);
-        Subtask subtask1 = memoryTaskManagerTest.createNewSubtask(thirdSubTaskTitle,
-                thirdSubTaskDescription, "NEW", epic1.getId(), null, Duration.ZERO);
+        Task task1 = taskService.createTask(new Task(firstTaskTitle,
+                firstTaskDescription, TaskStatus.DONE, null, Duration.ZERO));
+        Epic epic1 = epicService.createEpic(new Epic(firstEpicTitle,
+                firstEpicDescription, null));
+        Subtask subtask1 = subtaskService.createSubtask(new Subtask(thirdSubTaskTitle,
+                thirdSubTaskDescription, TaskStatus.NEW, epic1.getId(), null, Duration.ZERO));
 
-        historyManager.add(task1);
-        historyManager.add(epic1);
-        historyManager.add(subtask1);
-        int sizeHistoryListAfter = historyManager.getRecentTasks().size();
+        historyRepository.addTask(task1);
+        historyRepository.addTask(epic1);
+        historyRepository.addTask(subtask1);
+        int sizeHistoryListAfter = historyRepository.getHistory().size();
         int sizeHistoryList = sizeHistoryListAfter - sizeHistoryListBefore;
         assertEquals(3, sizeHistoryList,
                 String.format("Было создано 3 просмотра - получено %d просмотров", sizeHistoryList));
@@ -298,18 +324,20 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void removeTaskFromMiddleTest() {
-        Task firstTask = new Task(firstTaskTitle, firstTaskDescription, TaskStatus.NEW);
-        Task secondTask = new Task(secondTaskTitle, secondTaskDescription, TaskStatus.NEW);
-        Task thirdTask = new Task(thirdTaskTitle, thirdTaskDescription, TaskStatus.NEW);
+        Task firstTask = taskService.createTask(new Task(firstTaskTitle, firstTaskDescription, TaskStatus.NEW));
+        Task secondTask = taskService.createTask(new Task(secondTaskTitle, secondTaskDescription, TaskStatus.NEW));
+        Task thirdTask = taskService.createTask(new Task(thirdTaskTitle, thirdTaskDescription, TaskStatus.NEW));
 
-        historyManager.add(firstTask);
-        historyManager.add(secondTask);
-        historyManager.add(thirdTask);
+        historyService.addTask(firstTask);
+        historyService.addTask(secondTask);
+        historyService.addTask(thirdTask);
 
-        historyManager.remove(secondTask.getId());
+        historyService.removeTask(secondTask.getId());
 
-        assertFalse(historyManager.getHistory().contains(secondTask), "Вторая задача должна быть удалена");
-        assertTrue(historyManager.getHistory().contains(firstTask), "Первая задача должна была остаться");
-        assertTrue(historyManager.getHistory().contains(thirdTask), "Третья задача должна была остаться");
+        assertFalse(historyService.getHistory().contains(secondTask), "Вторая задача должна быть удалена");
+        assertTrue(historyService.getHistory().contains(firstTask), "Первая задача должна была остаться");
+        assertTrue(historyService.getHistory().contains(thirdTask), "Третья задача должна была остаться");
     }
+
+
 }

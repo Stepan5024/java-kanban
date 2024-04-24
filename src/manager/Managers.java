@@ -1,16 +1,31 @@
 package manager;
 
-import controller.history.InMemoryHistoryManager;
-import controller.managers.InMemoryTaskManager;
-import controller.managers.TaskManager;
 
-public class Managers {
+import storage.history.HistoryRepository;
+import storage.history.InMemoryHistoryManager;
+import storage.managers.TaskRepository;
+import storage.managers.impl.FileBackedTaskManager;
+import storage.managers.impl.InMemoryTaskManager;
 
-    public static TaskManager getDefault() {
-        return new InMemoryTaskManager(new InMemoryHistoryManager());
+import java.io.File;
+import java.io.IOException;
+
+public abstract class Managers {
+
+    public static TaskRepository getDefault(HistoryRepository historyRepository) {
+        return new InMemoryTaskManager(historyRepository);
     }
 
-    public static InMemoryHistoryManager getDefaultHistory() {
+    private static TaskRepository getTaskRepoInFile(HistoryRepository historyRepository) {
+        try {
+            new FileBackedTaskManager("123.txt", historyRepository);
+            return FileBackedTaskManager.loadFromFile(new File("123.txt"));
+        } catch (IOException e) {
+            return new FileBackedTaskManager("123.txt", historyRepository);
+        }
+    }
+
+    public static HistoryRepository getDefaultHistory() {
         return new InMemoryHistoryManager();
     }
 }

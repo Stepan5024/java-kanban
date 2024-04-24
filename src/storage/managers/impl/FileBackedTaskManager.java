@@ -1,13 +1,16 @@
-package controller.managers;
+package storage.managers.impl;
 
-import controller.history.HistoryManager;
 import model.Epic;
 import model.Subtask;
 import model.Task;
+
+import java.io.FileNotFoundException;
+
 import model.TaskStatus;
+import storage.history.HistoryRepository;
+import storage.managers.TaskRepository;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
@@ -20,12 +23,13 @@ import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
 
-public class FileBackedTaskManager extends InMemoryTaskManager implements TaskManager {
+public class FileBackedTaskManager extends InMemoryTaskManager implements TaskRepository {
 
     private final String filePath;
 
-    public FileBackedTaskManager(HistoryManager historyManager, String filePath) {
-        super(historyManager);
+
+    public FileBackedTaskManager(String filePath, HistoryRepository historyRepository) {
+        super(historyRepository);
         this.filePath = filePath;
     }
 
@@ -38,7 +42,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
                 }
             }
             writer.println();
-            writer.println(historyToString(getHistoryManager()));
+            writer.println(historyToString());
         } catch (FileNotFoundException e) {
             throw new ManagerSaveException("Ошибка при попытке сохранить данные в файл: файл не найден.", e);
         }
@@ -52,16 +56,19 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         return String.format("%d,%s,%s,%s,%s,%s,%s,%s", task.getId(), type, task.getTitle(), task.getStatus(), task.getDescription(), epicId, startTimeStr, durationStr);
     }
 
-    private static String historyToString(HistoryManager manager) {
+    private static String historyToString() {
         StringBuilder sb = new StringBuilder();
-        for (Task task : manager.getHistory()) {
+        System.out.println("historyToString " + historyRepository.getHistory());
+        for (Task task : historyRepository.getHistory()) {
             sb.append(task.getId()).append(",");
         }
         return sb.length() > 0 ? sb.substring(0, sb.length() - 1) : "";
     }
 
-    public static FileBackedTaskManager loadFromFile(File file, HistoryManager historyManager) throws IOException {
-        FileBackedTaskManager manager = new FileBackedTaskManager(historyManager, file.getPath());
+    public static TaskRepository loadFromFile(File file) throws IOException {
+        TaskRepository manager = new FileBackedTaskManager(file.getPath(), historyRepository);
+        Long highestId = 0L;
+
         String content = Files.readString(file.toPath());
         String[] lines = content.split("\n");
 
@@ -71,23 +78,35 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
             }
 
             Task task = fromString(lines[i]);
-            manager.addToTasksList(task);
-            if (task instanceof Subtask) {
-                manager.actualizationEpicStatus((Subtask) task);
+            manager.addTask(task);
+
+            if (task != null && task.getId() > highestId) {
+                highestId = task.getId();
             }
         }
-
+        generateId.setId(highestId + 1);
         // Пропускаем строки до истории
         int historyLineIndex = asList(lines).indexOf("") + 1;
         if (historyLineIndex > 0 && historyLineIndex < lines.length) {
             List<Integer> historyIds = historyFromString(lines[historyLineIndex]);
-            for (int id : historyIds) {
-                Task task = (Task) manager.getEntityById(id);
-                historyManager.add(task);
+            for (Integer id : historyIds) {
+                Task task = manager.getEntityById(Long.valueOf(id));
+                historyRepository.addTask(task);
             }
         }
 
         return manager;
+    }
+
+    public static List<Integer> historyFromString(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return List.of(); // Возвращаем пустой список
+        }
+
+        return Arrays.stream(value.split(","))
+                .map(String::trim)
+                .map(Integer::parseInt)
+                .collect(Collectors.toList());
     }
 
     private static Task fromString(String value) {
@@ -95,7 +114,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         long id = Long.parseLong(parts[0]);
         String type = parts[1];
         String title = parts[2];
-        TaskStatus status = TaskStatus.valueOf(parts[3]);
+        TaskStatus status;
+        if (parts.length > 3 && parts[3] != null && !"null".equalsIgnoreCase(parts[3].trim())) {
+            status = TaskStatus.valueOf(parts[3].trim());
+        } else {
+            status = TaskStatus.NEW;
+        }
         String description = parts[4];
 
         Duration duration = Duration.ZERO;
@@ -145,92 +169,46 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         return task;
     }
 
-    static List<Integer> historyFromString(String value) {
-        if (value == null || value.trim().isEmpty()) {
-            return List.of(); // Возвращаем пустой список
-        }
 
-        return Arrays.stream(value.split(","))
-                .map(String::trim)
-                .map(Integer::parseInt)
-                .collect(Collectors.toList());
+    @Override
+    public Task getTaskById(Long id) {
+        save();
+        return super.getTaskById(id);
     }
 
     @Override
-    public Task createNewTask(String title, String description, String status, LocalDateTime startTime, Duration duration) {
-        Task task = super.createNewTask(title, description, status, startTime, duration);
+    public Subtask getSubtaskById(Long id) {
         save();
-        return task;
+        return super.getSubtaskById(id);
     }
 
     @Override
-    public Epic createNewEpic(String title, String description) {
-        Epic epic = super.createNewEpic(title, description);
+    public Epic getEpicById(Long id) {
         save();
-        return epic;
+        return super.getEpicById(id);
     }
 
     @Override
-    public Subtask createNewSubtask(String title, String description, String status, long epicId, LocalDateTime startTime, Duration duration) {
-        Subtask subtask = super.createNewSubtask(title, description, status, epicId, startTime, duration);
+    public boolean addTask(Task task) {
+        System.out.println("File save");
+        boolean result = super.addTask(task);
         save();
-        return subtask;
-    }
-
-    @Override
-    public void actualizationEpicStatus(Subtask subtask) {
-        super.actualizationEpicStatus(subtask);
-        save();
-    }
-
-    @Override
-    public void addToTasksList(Object obj) {
-        super.addToTasksList(obj);
-        save();
-    }
-
-    @Override
-    public Epic getEpicById(long id) {
-        Epic epic = super.getEpicById(id);
-        save();
-        return epic;
-    }
-
-    @Override
-    public Subtask getSubtaskById(long id) {
-        Subtask subtask = super.getSubtaskById(id);
-        save();
-        return subtask;
-    }
-
-    @Override
-    public Task getTaskById(long id) {
-        Task task = super.getTaskById(id);
-        save();
-        return task;
-    }
-
-    @Override
-    public int removeEntityFromKanban(Class<?> aClass) {
-        int deletedCount = super.removeEntityFromKanban(aClass);
-        save();
-        return deletedCount;
+        return result;
     }
 
 
     @Override
-    public int removeTaskById(long taskId) {
-        int deletedCount = super.removeTaskById(taskId);
+    public boolean deleteTask(Task task) {
+        boolean result = super.deleteTask(task);
         save();
-        return deletedCount;
+        return result;
     }
 
-
     @Override
-    public Object updateTask(Object newTask, long taskId) {
-        Object task = super.updateTask(newTask, taskId);
+    public int deleteListOfTask(List<Task> list) {
+        int result = super.deleteListOfTask(list);
         save();
-        return task;
+        return result;
     }
 
 }

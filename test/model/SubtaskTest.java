@@ -1,10 +1,11 @@
 package model;
 
-import controller.managers.InMemoryTaskManager;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import service.impl.LongGenerateIdServiceImpl;
 
 import java.time.Duration;
 
@@ -23,11 +24,16 @@ class SubtaskTest {
 
     @BeforeEach
     void init() {
+        LongGenerateIdServiceImpl longGenerateIdService = new LongGenerateIdServiceImpl();
         epic = new Epic(firstEpicTitle, firstEpicDescription, TaskStatus.NEW);
-        expectedIdEpic = InMemoryTaskManager.getId() - 1;
+        epic.setId(longGenerateIdService.generateId());
+        expectedIdEpic = longGenerateIdService.getId();
+
         subtask = new Subtask("Subtask Title", "Subtask description", TaskStatus.NEW, epic.getId(),
                 null, Duration.ZERO);
+        subtask.setId(longGenerateIdService.generateId());
     }
+
 
     @Test
     void getEpicId() {
