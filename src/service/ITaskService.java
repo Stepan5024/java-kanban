@@ -1,6 +1,7 @@
 package service;
 
 import model.Task;
+
 import java.util.List;
 
 public interface ITaskService {
@@ -43,5 +44,7 @@ public interface ITaskService {
      */
 
     boolean deleteTask(Long id);
+
+    boolean deleteAllTasks();
 }
 

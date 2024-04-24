@@ -98,7 +98,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskRe
         return manager;
     }
 
-    static List<Integer> historyFromString(String value) {
+    public static List<Integer> historyFromString(String value) {
         if (value == null || value.trim().isEmpty()) {
             return List.of(); // Возвращаем пустой список
         }

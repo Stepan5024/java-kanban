@@ -31,6 +31,11 @@ public class EpicService extends AbstractTaskService implements IEpicService, IE
     }
 
     @Override
+    public ISubtaskService getSubtaskService() {
+        return subtaskService;
+    }
+
+    @Override
     public List<Task> getEpics() {
         System.out.println("getEpics");
         return taskRepository.getPrioritizedTasks().stream()
@@ -119,36 +124,38 @@ public class EpicService extends AbstractTaskService implements IEpicService, IE
 
     }
 
-    @Override
-    public List<Subtask> getSubtasksByEpic(Long epicId) {
-        return subtaskService.getSubtasksByEpicId(epicId);
-    }
 
     @Override
     public void actualizeEpicStatus(Long epicId) {
         System.out.println("actualizeEpicStatus");
         Epic currentEpic = (Epic) taskRepository.getEntityById(epicId);
         if (currentEpic == null) return;
-        System.out.println("subserc" + subtaskService);
-        System.out.println(currentEpic);
-        if (subtaskService.isAllSubtasksInRequiredStatus(currentEpic.getId(), TaskStatus.DONE)) {
-            // эпик получает статус DONE
-            System.out.printf("Обновляем эпик с id = %d на статус DONE\n", currentEpic.getId());
-            currentEpic.setStatus(TaskStatus.DONE);
 
-            updateEpic(currentEpic);
+        System.out.println("Current Epic Status: " + currentEpic.getStatus());
+        System.out.println(subtaskService.getSubtasksByEpicId(epicId));
 
-        } else if (subtaskService.isAllSubtasksInRequiredStatus(currentEpic.getId(), TaskStatus.NEW)) {
-            // эпик получает статус NEW
-            System.out.printf("Обновляем эпик с id = %d на статус NEW\n", currentEpic.getId());
-            currentEpic.setStatus(TaskStatus.NEW);
-            updateEpic(currentEpic);
+
+        List<Subtask> subtasks = subtaskService.getSubtasksByEpicId(epicId);
+        if (!subtasks.isEmpty()) {
+            boolean allDone = subtaskService.isAllSubtasksInRequiredStatus(currentEpic.getId(), TaskStatus.DONE);
+            boolean allNew = subtaskService.isAllSubtasksInRequiredStatus(currentEpic.getId(), TaskStatus.NEW);
+
+            System.out.println("All Subtasks DONE: " + allDone);
+            System.out.println("All Subtasks NEW: " + allNew);
+
+            if (allDone) {
+                currentEpic.setStatus(TaskStatus.DONE);
+            } else if (allNew) {
+                currentEpic.setStatus(TaskStatus.NEW);
+            } else {
+                currentEpic.setStatus(TaskStatus.IN_PROGRESS);
+            }
         } else {
-            // эпик получает статус IN_PROGRESS
-            System.out.printf("Обновляем эпик c id = %d на статус IN_PROGRESS\n", currentEpic.getId());
-            currentEpic.setStatus(TaskStatus.IN_PROGRESS);
-            updateEpic(currentEpic);
+            System.out.println("No subtasks found for Epic ID: " + epicId);
+            currentEpic.setStatus(TaskStatus.NEW);
         }
+
+        updateEpic(currentEpic);
     }
 
 

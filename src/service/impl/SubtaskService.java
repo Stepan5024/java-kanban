@@ -71,20 +71,18 @@ public class SubtaskService extends AbstractTaskService implements ISubtaskServi
             task.setDuration(Duration.ZERO);
         }
 
-
-        //System.out.println(task);
         boolean overlap = taskRepository.getPrioritizedTasks().stream().anyMatch(
                 existingTask -> Task.tasksOverlap(task.getStartTime(), task.getDuration(),
                         existingTask.getStartTime(), existingTask.getDuration())
         );
+        System.out.println("\nAll subTasks " + taskRepository.getAllEntitiesByClass(Subtask.class));
+
         if (!overlap) {
             taskRepository.addTask(task);
             epicStatusUpdater.actualizeEpicStatus(epicId);
             epicStatusUpdater.updateEpicTimeAndDuration(epicId);
-            System.out.println("\nAll subTasks " + taskRepository.getAllEntitiesByClass(Subtask.class));
             return task;
         } else {
-            System.out.println("\nAll subTasks " + taskRepository.getAllEntitiesByClass(Subtask.class));
 
             Task newTask = taskRepository.getPrioritizedTasks().stream()
                     .filter(existingTask -> Task.tasksOverlap(
@@ -110,10 +108,11 @@ public class SubtaskService extends AbstractTaskService implements ISubtaskServi
     @Override
     public List<Subtask> getSubtasksByEpicId(Long epicId) {
         // ТЗ пункт 3.А Получение списка всех подзадач определённого эпика.
-        System.out.println("getSubtasksByEpicId");
+        System.out.println("getSubtasksByEpicId for Epic ID: " + epicId);
         return taskRepository.getAllEntitiesByClass(Subtask.class).stream()
-                .filter(subtask -> subtask instanceof Subtask && ((Subtask) subtask).getEpicId() == epicId)
+                .filter(subtask -> subtask instanceof Subtask)
                 .map(subtask -> (Subtask) subtask)
+                .filter(subtask -> subtask.getEpicId().equals(epicId))
                 .collect(Collectors.toList());
     }
 

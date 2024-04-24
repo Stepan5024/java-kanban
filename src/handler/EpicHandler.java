@@ -70,7 +70,7 @@ public class EpicHandler implements HttpHandler {
     }
 
     private void handleGetSubtaskByEpic(HttpExchange exchange, long epicId) throws IOException {
-        List<Subtask> subtasks = epicService.getSubtasksByEpic(epicId);
+        List<Subtask> subtasks = epicService.getSubtaskService().getSubtasksByEpicId(epicId);
         if (subtasks != null && !subtasks.isEmpty()) {
             sendResponse(exchange, 200, gson.toJson(subtasks));
         } else {
@@ -108,11 +108,9 @@ public class EpicHandler implements HttpHandler {
                 sendResponse(exchange, 406, "Unable to create epic due to overlap");
             }
         } else {
-            //System.out.println("Request to update Epic");
             // ID is provided, try to update the epic
             Epic updatedEpic = epicService.updateEpic(epic);
             if (updatedEpic != null) {
-                System.out.println("Epic updated " + updatedEpic);
                 sendResponse(exchange, 200, gson.toJson(updatedEpic));
             } else {
                 sendResponse(exchange, 404, "Epic not found or update failed");

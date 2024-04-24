@@ -1,13 +1,14 @@
 package service;
 
 import model.Epic;
-import model.Subtask;
 import model.Task;
 
 import java.util.List;
 
 public interface IEpicService {
     void setSubtaskService(ISubtaskService subtaskService);
+
+    ISubtaskService getSubtaskService();
 
     List<Task> getEpics();
 
@@ -19,5 +20,4 @@ public interface IEpicService {
 
     boolean deleteEpic(Long id);
 
-    List<Subtask> getSubtasksByEpic(Long epicId);
 }

@@ -106,14 +106,21 @@ public class TaskService extends AbstractTaskService implements ITaskService {
     @Override
     public boolean deleteTask(Long id) {
         // ТЗ пункт 2.F Удаление по идентификатору
-
         Task task = taskRepository.getEntityById(id);
 
         if (task != null && task.getClass().equals(Task.class)) {
             return taskRepository.deleteTask(task);
         } else {
-            return false; // Task either not found or not of type Task
+            return false;
         }
 
+    }
+
+    @Override
+    public boolean deleteAllTasks() {
+
+        List<Task> tasks = taskRepository.getAllEntitiesByClass(Task.class);
+        tasks.forEach(task -> taskRepository.deleteTask(task));
+        return taskRepository.getAllEntitiesByClass(Task.class).isEmpty();
     }
 }
